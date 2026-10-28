@@ -76,19 +76,10 @@
   .contact small { display: block; color: var(--quiet); font-size: 13px; }
   .tag { min-height: 44px; width: auto; margin: 0; padding: 6px 10px; font-size: 14px; border-radius: 10px; }
   .tag.parent { border-color: var(--blue); }
-  .tag.club { border-color: var(--green); }
-  .tag.emergency { border-color: var(--red); }
   .tag.off { opacity: 0.5; }
   .step { border: 2px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 12px; background: var(--panel); }
   .step.red { border-color: var(--red); }
   .step h3 { margin: 0 0 8px; font-size: 20px; }
-  .ack { display: flex; justify-content: space-between; align-items: center; }
-  .ack.done { border-color: var(--green); background: rgba(47,191,113,0.18); }
-  .hold { position: relative; overflow: hidden; }
-  .hold .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(255,77,77,0.45); }
-  .hold.go .fill { width: 100%; transition: width 2s linear; }
-  .hold .lbl { position: relative; }
-  .hold small { display: block; font-size: 15px; font-weight: 600; }
   label.chk { display: flex; align-items: center; gap: 10px; font-size: 18px; min-height: 44px; }
   label.chk input { width: 26px; height: 26px; }
   .note { color: var(--quiet); font-size: 14px; }
@@ -146,7 +137,6 @@
     <button class="green" onclick="show('results')" data-t="b_results">Resultados</button>
   </div>
   <button class="amber" onclick="show('plan')" data-t="b_plan">Cambio de plan</button>
-  <button class="red hold" id="emgBtn"><span class="fill"></span><span class="lbl"><span data-t="b_emg">EMERGENCIA</span><small data-t="b_hold">mantén pulsado 2 segundos</small></span></button>
   <div class="last" id="lastSent"></div>
 </section>
 
@@ -204,34 +194,6 @@
   <button class="green" onclick="pickResults()" data-t="r_preview">Revisar y enviar</button>
 </section>
 
-<!-- EMERGENCY -->
-<section id="emergency">
-  <div class="bar"><h1 data-t="b_emg">EMERGENCIA</h1><button class="link" onclick="show('hub')" data-t="exit">Salir</button></div>
-  <div class="sub" data-t="e_order">Sigue los pasos en orden.</div>
-  <div class="step red">
-    <h3 data-t="e1">1  Primero el rescate</h3>
-    <a class="btn red" href="tel:112" data-t="e_112">Llamar al 112</a>
-    <div class="note" data-t="e_vhf">O canal 16 de VHF desde la neumática.</div>
-  </div>
-  <div class="step">
-    <h3 data-t="e2">2  Avisar a padres y club</h3>
-    <div class="preview" id="emgText"></div>
-    <div class="trans" id="emgEn"></div>
-    <button class="red" onclick="emgSend('sms')" data-t="e_sms">SMS a todos</button>
-    <button class="small" onclick="emgSend('wa')" data-t="s_wa">Grupo de WhatsApp</button>
-  </div>
-  <div class="step">
-    <h3 data-t="e3">3  Llamar por orden</h3>
-    <div id="escList"></div>
-  </div>
-  <div class="step">
-    <h3 id="ackHead">4</h3>
-    <div class="note" style="margin-bottom:8px" data-t="e_tap">Toca un nombre cuando responda. Llama a quien falte.</div>
-    <div id="ackList"></div>
-  </div>
-  <button class="green" onclick="emgClose()" data-t="e_close">Cerrar: todos bien y en tierra</button>
-</section>
-
 <!-- SETUP -->
 <section id="setup">
   <div class="bar"><button class="lang" onclick="toggleLang()">English</button><button class="link" onclick="show('hub')" data-t="done">Listo</button></div>
@@ -260,7 +222,7 @@
   <button class="blue" onclick="importContacts()" data-t="import">Importar de tu agenda</button>
   <input type="file" id="vcf" accept=".vcf,text/vcard,text/x-vcard" style="display:none">
   <div class="note" id="importNote" style="margin:-4px 0 12px"></div>
-  <div class="note" style="margin-bottom:10px" data-t="tagnote">Toca la etiqueta para cambiarla: Padre/madre, Club, Emergencia o Fuera.</div>
+  <div class="note" style="margin-bottom:10px" data-t="tagnote">Toca la etiqueta para cambiarla: Padre/madre o Fuera.</div>
   <div id="contactList"></div>
   <button class="small" onclick="loadSample()" data-t="sample">Cargar contactos de ejemplo (pruebas)</button>
   <button class="small" onclick="clearContacts()" data-t="clear">Quitar todos los contactos</button>
@@ -307,8 +269,6 @@ var TEXT = {
     prizetbd: 'Aún no hay hora de entrega de premios, aviso enseguida.',
     results: '¡Resultados!',
     resultsRace: 'Resultados prueba {r}:',
-    emergency: 'URGENTE: incidente en el agua. Los entrenadores se están ocupando. Llamaremos directamente a los padres afectados. Mantened el teléfono libre y responded OK.',
-    allsafe: 'Actualización ({t}): el incidente ha terminado. Todos los regatistas están bien y en tierra. Gracias.',
     pin: 'Mensaje de prueba de la app del entrenador. Ignoradlo, por favor.',
     at: ' en ', subject: 'Novedades de vela',
     fleet: { yellow: 'Grupo amarillo', blue: 'Grupo azul', red: 'Grupo rojo' }
@@ -327,8 +287,6 @@ var TEXT = {
     prizetbd: 'No prize-giving time yet; we will let you know.',
     results: 'Results!',
     resultsRace: 'Race {r} results:',
-    emergency: 'URGENT: incident on the water. The coaches are dealing with it. We will call the parents concerned directly. Please keep your phone free and reply OK.',
-    allsafe: 'Update ({t}): the incident is over. All sailors are safe and ashore. Thank you.',
     pin: 'Test message from the coach app. Please ignore.',
     at: ' at ', subject: 'Sailing update',
     fleet: { yellow: 'Yellow fleet', blue: 'Blue fleet', red: 'Red fleet' }
@@ -342,26 +300,22 @@ var UI = {
     offline: 'No data signal: WhatsApp will wait. Use SMS if it is urgent.',
     b_water: 'On the water', b_lastrace: 'Last race', readyin: 'Ready to collect in',
     b_heading: 'Heading in', b_readynow: 'Ready now', b_prize: 'Prize-giving', b_results: 'Results',
-    b_plan: 'Change of plan', b_emg: 'EMERGENCY', b_hold: 'press and hold 2 seconds',
+    b_plan: 'Change of plan',
     check: 'Check and send', back: 'Back', s_wa: 'WhatsApp group', s_mail: 'Email parents (Bcc)', s_sms: 'SMS parents',
     nosend: 'Nothing is sent until you tap send in WhatsApp, Mail or Messages.',
     p_early: 'Coming in early (weather)', p_abandoned: 'Racing abandoned today', p_delayed: 'Running late',
     p_cancelled: 'Training cancelled (warning)', z_send: 'Send prize-giving time', z_tbd: 'No time yet',
     r_link: 'Regatta results link (kept for today)', r_paste: 'Paste from clipboard', r_sendlink: 'Send link',
     r_or: 'Or paste the standings', r_preview: 'Preview and send',
-    exit: 'Exit', e_order: 'Follow the steps in order.', e1: '1  Rescue first', e_112: 'Call 112',
-    e_vhf: 'Or VHF channel 16 from the RIB radio.', e2: '2  Alert parents and club', e_sms: 'SMS everyone',
-    e3: '3  Call down the list', e_tap: 'Tap a name when they reply. Call anyone still open.',
-    e_close: 'Close: all safe and ashore', ack: 'Acknowledged',
     done: 'Done', onland: 'Do this once, on land.', u_lang: 'App language', m_lang: 'Message languages',
     today: 'Today', regday: 'Regatta day (colour fleets)', light: 'Light theme (overcast days)',
     contacts: 'Contacts', import: 'Import from your address book',
-    tagnote: 'Tap a tag to change it: Parent, Club, Emergency, or Off.',
+    tagnote: 'Tap a tag to change it: Parent or Off.',
     sample: 'Load sample contacts (testing)', clear: 'Remove all contacts',
     pin: 'Send a test message to pin the group', pinnote: "Pick the parents' group once. WhatsApp then shows it at the top of its share list.",
     logh: 'Send log (last 7 days)', training: 'Training', regatta: 'Regatta', parents: 'parents',
     lastsent: 'Last sent', nothing: 'Nothing sent today yet.',
-    roles: { parent: 'Parent', club: 'Club', emergency: 'Emergency', off: 'Off' },
+    roles: { parent: 'Parent', off: 'Off' },
     example: 'Example', ex_open: 'How does it work? See an example', ex_h: 'How it works: an example day',
     ex_sub: 'Each step is one button in the app. The green box is what parents read in the group.',
     ex_try: 'Try it with sample data',
@@ -370,9 +324,9 @@ var UI = {
   },
   es: {
     inEnglish: '', ex_before: 'Antes (en tierra)',
-    ack: 'Confirmados', training: 'Entreno', regatta: 'Regata', parents: 'padres',
+    training: 'Entreno', regatta: 'Regata', parents: 'padres',
     lastsent: 'Último envío', nothing: 'Hoy no se ha enviado nada.',
-    roles: { parent: 'Padre/madre', club: 'Club', emergency: 'Emergencia', off: 'Fuera' }
+    roles: { parent: 'Padre/madre', off: 'Fuera' }
   }
 };
 var HTML_TEXT = {};
@@ -439,7 +393,6 @@ function show(id) {
   $(id).className = 'on';
   if (id === 'hub') renderHub();
   if (id === 'setup') renderSetup();
-  if (id === 'emergency') renderEmergency();
   if (id === 'plan') setPlanEta(settings.planEta);
   if (id === 'prize' && !$('prizePlace').value) $('prizePlace').value = settings.place || '';
   if (id === 'results') $('resultsUrl').value = todayUrl();
@@ -458,7 +411,7 @@ function build(kind, opts) {
     if (kind === 'results' && opts.race) s = T.resultsRace.replace('{r}', opts.race);
     s = s.replace('{t}', clock(opts.min || 0, opts.at)).replace('{p}', place)
          .replace('{pt}', opts.prizeTime || '').replace('{pp}', opts.prizePlace ? T.at + opts.prizePlace : '');
-    if (settings.regatta && settings.fleet && kind !== 'emergency' && kind !== 'allsafe' && kind !== 'pin') {
+    if (settings.regatta && settings.fleet && kind !== 'pin') {
       s = T.fleet[settings.fleet] + ': ' + s;
     }
     out.push(s);
@@ -602,72 +555,8 @@ function sendSms(r) {
   if (link) { logSend('SMS'); window.location.href = link; }
 }
 
-/* ---------- emergency ---------- */
-var holdTimer = null;
-function holdStart(e) {
-  if (e && e.preventDefault) e.preventDefault();
-  var b = $('emgBtn');
-  b.className = 'red hold go';
-  holdTimer = setTimeout(function () {
-    b.className = 'red hold';
-    if (navigator.vibrate) navigator.vibrate(200);
-    settings.acks = {};
-    save('settings', settings);
-    show('emergency');
-  }, 2000);
-}
-function holdEnd() {
-  clearTimeout(holdTimer);
-  $('emgBtn').className = 'red hold';
-}
-function renderEmergency() {
-  current = build('emergency');
-  current_kind = 'emergency';
-  $('emgText').textContent = current;
-  showTrans('emgEn', translation('emergency', {}));
-  var list = role('emergency').concat(role('club')), h = '';
-  for (var i = 0; i < list.length; i++) {
-    h += '<a class="btn small" href="tel:' + esc(list[i].tel) + '">' + (settings.ui === 'en' ? 'Call ' : 'Llamar a ') + esc(list[i].name) + '</a>';
-  }
-  $('escList').innerHTML = h || '<div class="note">' + (settings.ui === 'en' ? 'No emergency or club contacts tagged yet.' : 'Aún no hay contactos de emergencia o club.') + '</div>';
-  renderAcks();
-}
-function renderAcks() {
-  var p = role('parent'), h = '', n = 0, acks = settings.acks || {};
-  for (var i = 0; i < p.length; i++) {
-    var ok = !!acks[p[i].id];
-    if (ok) n++;
-    h += '<div class="contact ack' + (ok ? ' done' : '') + '" onclick="toggleAck(\'' + p[i].id + '\')">' +
-         '<span>' + esc(p[i].name) + '</span>' +
-         (ok ? '<b>OK</b>' : '<a class="btn small tag" href="tel:' + esc(p[i].tel) + '" onclick="event.stopPropagation()">' + (settings.ui === 'en' ? 'Call' : 'Llamar') + '</a>') +
-         '</div>';
-  }
-  $('ackList').innerHTML = h || '<div class="note">-</div>';
-  $('ackHead').textContent = '4  ' + t('ack') + ' ' + n + ' / ' + p.length;
-}
-function toggleAck(id) {
-  settings.acks = settings.acks || {};
-  settings.acks[id] = !settings.acks[id];
-  save('settings', settings);
-  renderAcks();
-}
-function emgSend(ch) {
-  var all = role('parent').concat(role('club')).concat(role('emergency'));
-  if (ch === 'sms') {
-    var link = smsLink(all, withSquad(current));
-    if (link) { logSend('SMS', 'emergency'); window.location.href = link; }
-  } else {
-    logSend('WhatsApp', 'emergency');
-    shareWhatsApp(current);
-  }
-}
-function emgClose() {
-  prevScreen = 'emergency';
-  setPreview('allsafe', {});
-}
-
 /* ---------- contacts ---------- */
-var ROLES = ['parent', 'club', 'emergency', 'off'];
+var ROLES = ['parent', 'off'];
 function uid() { return 'c' + new Date().getTime().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
 function addContacts(list) {
   var added = 0;
@@ -729,14 +618,8 @@ function loadSample() {
   addContacts([
     { name: 'Parent 1 (sample)', tel: '+34600000001', email: 'parent1@example.com' },
     { name: 'Parent 2 (sample)', tel: '+34600000002', email: 'parent2@example.com' },
-    { name: 'Parent 3 (sample)', tel: '+34600000003', email: '' },
-    { name: 'Club office (sample)', tel: '+34600000010', email: 'office@example.com' },
-    { name: 'Head coach (sample)', tel: '+34600000020', email: '' }
+    { name: 'Parent 3 (sample)', tel: '+34600000003', email: '' }
   ]);
-  contacts[contacts.length - 2].role = 'club';
-  contacts[contacts.length - 1].role = 'emergency';
-  save('contacts', contacts);
-  renderSetup();
 }
 function clearContacts() {
   if (confirm(settings.ui === 'en' ? 'Remove all contacts from this app? Your address book is not touched.' : '¿Quitar todos los contactos de la app? Tu agenda no se toca.')) {
@@ -856,10 +739,12 @@ function bindSetting(id, key, isText) {
 
 /* ---------- start ---------- */
 var DEFAULTS = { squad: '', place: '', ui: 'es', es: true, en: false, regatta: false, fleet: '', light: false,
-                 planEta: 45, resultsUrl: '', resultsDay: '', acks: {} };
+                 planEta: 45, resultsUrl: '', resultsDay: '' };
 settings = load('settings', {});
 for (var k in DEFAULTS) if (settings[k] === undefined) settings[k] = DEFAULTS[k];
 contacts = load('contacts', []);
+/* Club and emergency tags were removed in v4 (emergencies are handled individually); those contacts get no messages. */
+for (var ci = 0; ci < contacts.length; ci++) if (ROLES.indexOf(contacts[ci].role) < 0) contacts[ci].role = 'off';
 log = load('log', []);
 if (settings.light) document.body.className = 'light';
 bindSetting('squadName', 'squad', true);
@@ -877,13 +762,6 @@ $('vcf').addEventListener('change', function () {
   r.readAsText(f);
   this.value = '';
 });
-var eb = $('emgBtn');
-eb.addEventListener('touchstart', holdStart, false);
-eb.addEventListener('touchend', holdEnd, false);
-eb.addEventListener('touchcancel', holdEnd, false);
-eb.addEventListener('mousedown', holdStart, false);
-eb.addEventListener('mouseup', holdEnd, false);
-eb.addEventListener('mouseleave', holdEnd, false);
 window.addEventListener('online', renderHub);
 window.addEventListener('offline', renderHub);
 applyUi();
