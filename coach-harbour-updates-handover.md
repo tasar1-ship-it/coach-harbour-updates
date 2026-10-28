@@ -1,6 +1,6 @@
 # Coach Harbour Updates — handover
 
-- Current version: service worker `coach-harbour-v7` (28 Oct 2026)
+- Current version: service worker `coach-harbour-v8` (28 Oct 2026)
 - Live URL: https://tasar1-ship-it.github.io/coach-harbour-updates/
 - Design document: https://claude.ai/artifact/CSR2g8MjFCXZCtFuXvvzyU
 
@@ -19,6 +19,8 @@
 - Contacts: Contact Picker API where available (Android Chrome), else `.vcf` file import
 
 ## Last change
+
+v8 (28 Oct 2026): Results button pink (--pink #ff5fa8) instead of teal.
 
 v7 (28 Oct 2026): service worker serves the page network-first, falling back to the cached copy offline. Before, it was cache-first, so a new version only showed on the second open (Ronald saw no colours after v6). Phones that still run the old worker may need one more reload, or removing and re-adding the home-screen icon once.
 
