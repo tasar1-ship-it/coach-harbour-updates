@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Harbour">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Coach Harbour Updates</title>
+<style>
+  :root {
+    --bg: #0b1220; --panel: #151f33; --line: #2a3a58; --ink: #ffffff; --quiet: #b7c3d9;
+    --blue: #3d8bff; --green: #2fbf71; --red: #ff4d4d; --amber: #ffb020;
+  }
+  body.light { --bg: #f4f6fa; --panel: #ffffff; --line: #c9d2e3; --ink: #0b1220; --quiet: #4a5876; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font: 18px/1.35 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    padding: calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 14px)
+             calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 14px);
+    -webkit-user-select: none; user-select: none;
+  }
+  section { display: none; max-width: 520px; margin: 0 auto; }
+  section.on { display: block; }
+  h1 { font-size: 24px; margin: 4px 0 2px; }
+  h2 { font-size: 20px; margin: 18px 0 8px; }
+  .sub { color: var(--quiet); font-size: 15px; margin-bottom: 12px; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  button, .btn {
+    display: block; width: 100%; min-height: 72px; margin: 0 0 12px; padding: 12px 14px;
+    border-radius: 14px; border: 2px solid var(--line); background: var(--panel); color: var(--ink);
+    font: inherit; font-size: 22px; font-weight: 700; text-align: center; text-decoration: none;
+    cursor: pointer;
+  }
+  button:active, .btn:active { transform: scale(0.98); }
+  .blue { border-color: var(--blue); background: rgba(61,139,255,0.18); }
+  .green { border-color: var(--green); background: rgba(47,191,113,0.18); }
+  .red { border-color: var(--red); background: rgba(255,77,77,0.2); }
+  .small { min-height: 52px; font-size: 17px; }
+  .eta { min-height: 96px; }
+  .eta b { display: block; font-size: 34px; line-height: 1.1; }
+  .eta span { font-size: 16px; font-weight: 600; }
+  .bar { display: flex; justify-content: space-between; align-items: center; }
+  .link { background: none; border: none; min-height: 44px; width: auto; margin: 0; padding: 0 4px;
+          color: var(--blue); font-size: 17px; font-weight: 600; }
+  .banner { display: none; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px;
+            background: rgba(255,176,32,0.2); border: 2px solid var(--amber); font-size: 16px; font-weight: 600; }
+  .banner.on { display: block; }
+  .last { color: var(--quiet); font-size: 15px; margin-top: 4px; }
+  textarea, input[type=text] {
+    width: 100%; font: inherit; font-size: 18px; color: var(--ink); background: var(--panel);
+    border: 2px solid var(--line); border-radius: 12px; padding: 12px; -webkit-user-select: text; user-select: text;
+  }
+  textarea { min-height: 180px; }
+  .preview { white-space: pre-wrap; background: var(--panel); border: 2px solid var(--line);
+             border-radius: 12px; padding: 14px; font-size: 18px; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
+  .contact { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+             background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+             padding: 10px 12px; margin-bottom: 8px; font-size: 17px; }
+  .contact small { display: block; color: var(--quiet); font-size: 13px; }
+  .tag { min-height: 44px; width: auto; margin: 0; padding: 6px 10px; font-size: 14px; border-radius: 10px; }
+  .tag.parent { border-color: var(--blue); }
+  .tag.club { border-color: var(--green); }
+  .tag.emergency { border-color: var(--red); }
+  .tag.off { opacity: 0.5; }
+  .step { border: 2px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 12px; background: var(--panel); }
+  .step.red { border-color: var(--red); }
+  .step h3 { margin: 0 0 8px; font-size: 20px; }
+  .ack { display: flex; justify-content: space-between; align-items: center; }
+  .ack.done { border-color: var(--green); background: rgba(47,191,113,0.18); }
+  .hold { position: relative; overflow: hidden; }
+  .hold .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(255,77,77,0.45); }
+  .hold.go .fill { width: 100%; transition: width 2s linear; }
+  .hold .lbl { position: relative; }
+  .hold small { display: block; font-size: 15px; font-weight: 600; }
+  label.chk { display: flex; align-items: center; gap: 10px; font-size: 18px; min-height: 44px; }
+  label.chk input { width: 26px; height: 26px; }
+  .note { color: var(--quiet); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- HUB -->
+<section id="hub">
+  <div class="bar">
+    <h1 id="squadTitle">Squad</h1>
+    <button class="link" onclick="show('setup')">Setup</button>
+  </div>
+  <div class="sub" id="hubSub"></div>
+  <div class="banner" id="offline">No data signal: WhatsApp and Mail will wait. Use SMS to be sure.</div>
+  <div class="sub" style="margin:0 0 6px">In harbour in about</div>
+  <div class="row">
+    <button class="blue eta" onclick="pick('eta',30)"><b>30</b><span>min</span></button>
+    <button class="blue eta" onclick="pick('eta',45)"><b>45</b><span>min</span></button>
+    <button class="blue eta" onclick="pick('eta',60)"><b>1</b><span>hour</span></button>
+  </div>
+  <button onclick="pick('delayed')">Delayed, new time follows</button>
+  <button onclick="pick('ashore')">Back on shore, all safe</button>
+  <button class="green" onclick="show('results')">Race results</button>
+  <button class="red hold" id="emgBtn"><span class="fill"></span><span class="lbl">EMERGENCY<small>press and hold 2 seconds</small></span></button>
+  <div class="last" id="lastSent"></div>
+</section>
+
+<!-- PREVIEW -->
+<section id="preview">
+  <div class="bar"><h1>Check and send</h1><button class="link" onclick="back()">Back</button></div>
+  <div class="preview" id="previewText"></div>
+  <button class="green" onclick="sendWhatsApp()">WhatsApp group</button>
+  <button onclick="sendEmail('parent')">Email parents (Bcc)</button>
+  <button onclick="sendSms('parent')">SMS parents</button>
+  <div class="note">Nothing is sent until you tap send in WhatsApp, Mail or Messages.</div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="bar"><h1>Race results</h1><button class="link" onclick="show('hub')">Back</button></div>
+  <div class="sub">Paste, check, send. Only what you paste is sent.</div>
+  <input type="text" id="raceNo" placeholder="Race number (e.g. 3)" inputmode="numeric">
+  <div style="height:10px"></div>
+  <textarea id="resultsText" placeholder="1. ESP 1234&#10;2. ESP 2201&#10;3. GER 1102"></textarea>
+  <div style="height:12px"></div>
+  <button class="small" onclick="pasteResults()">Paste from clipboard</button>
+  <button class="green" onclick="pickResults()">Preview and send</button>
+</section>
+
+<!-- EMERGENCY -->
+<section id="emergency">
+  <div class="bar"><h1>Emergency</h1><button class="link" onclick="show('hub')">Exit</button></div>
+  <div class="sub">Follow the steps in order.</div>
+  <div class="step red">
+    <h3>1  Rescue first</h3>
+    <a class="btn red" href="tel:112">Call 112</a>
+    <div class="note">Or VHF channel 16 from the RIB radio.</div>
+  </div>
+  <div class="step">
+    <h3>2  Alert parents and club</h3>
+    <div class="preview" id="emgText"></div>
+    <button class="red" onclick="emgSend('sms')">SMS everyone</button>
+    <button class="small" onclick="emgSend('wa')">WhatsApp group</button>
+  </div>
+  <div class="step">
+    <h3>3  Call down the list</h3>
+    <div id="escList"></div>
+  </div>
+  <div class="step">
+    <h3 id="ackHead">4  Acknowledged</h3>
+    <div class="note" style="margin-bottom:8px">Tap a name when they reply. Call anyone still open.</div>
+    <div id="ackList"></div>
+  </div>
+  <button class="green" onclick="emgClose()">Close: all safe and ashore</button>
+</section>
+
+<!-- SETUP -->
+<section id="setup">
+  <div class="bar"><h1>Setup</h1><button class="link" onclick="show('hub')">Done</button></div>
+  <div class="sub">Do this once, on land.</div>
+  <input type="text" id="squadName" placeholder="Squad name, e.g. Optimist B squad">
+  <div style="height:10px"></div>
+  <div class="row">
+    <label class="chk"><input type="checkbox" id="langEs"> Español</label>
+    <label class="chk"><input type="checkbox" id="langEn"> English</label>
+  </div>
+  <label class="chk"><input type="checkbox" id="regatta"> Today is a regatta day</label>
+  <label class="chk"><input type="checkbox" id="lightTheme"> Light theme (overcast days)</label>
+
+  <h2>Contacts</h2>
+  <button class="blue" onclick="importContacts()">Import from your address book</button>
+  <input type="file" id="vcf" accept=".vcf,text/vcard,text/x-vcard" style="display:none">
+  <div class="note" id="importNote" style="margin:-4px 0 12px"></div>
+  <div class="note" style="margin-bottom:10px">Tap a tag to change it: Parent, Club, Emergency, or Off.</div>
+  <div id="contactList"></div>
+  <button class="small" onclick="loadSample()">Load sample contacts (testing)</button>
+  <button class="small" onclick="clearContacts()">Remove all contacts</button>
+
+  <h2>WhatsApp group</h2>
+  <button class="green small" onclick="pinTest()">Send a test message to pin the group</button>
+  <div class="note">Pick the parents' group once. WhatsApp then shows it at the top of its share list.</div>
+
+  <h2>Send log (last 7 days)</h2>
+  <div id="logList" class="note"></div>
+</section>
+
+<script>
+var P = 'chu1_';
+var settings, contacts, log, current = '', current_kind = '', prevScreen = 'hub';
+
+var TEXT = {
+  en: {
+    eta: 'The children will be back in the harbour in {m} (around {t}).',
+    delayed: 'We are running late. The children are fine. A new arrival time follows shortly.',
+    ashore: 'All sailors are back on shore and safe ({t}).',
+    results: 'Race {r} results:',
+    emergency: 'URGENT: incident on the water. The coaches are dealing with it. We will call the parents concerned directly. Please keep your phone free and reply OK.',
+    allsafe: 'Update ({t}): the incident is over. All sailors are safe and ashore. Thank you.',
+    pin: 'Test message from the coach app. Please ignore.',
+    min: 'about {n} minutes', hour: 'about 1 hour', subject: 'Sailing update'
+  },
+  es: {
+    eta: 'Los niños estarán de vuelta en el puerto en {m} (sobre las {t}).',
+    delayed: 'Vamos con retraso. Los niños están bien. En breve enviamos la nueva hora de llegada.',
+    ashore: 'Todos los regatistas están en tierra y bien ({t}).',
+    results: 'Resultados de la regata {r}:',
+    emergency: 'URGENTE: incidente en el agua. Los entrenadores se están ocupando. Llamaremos directamente a los padres afectados. Mantengan el teléfono libre y respondan OK.',
+    allsafe: 'Actualización ({t}): el incidente ha terminado. Todos los regatistas están bien y en tierra. Gracias.',
+    pin: 'Mensaje de prueba de la app del entrenador. Ignórenlo, por favor.',
+    min: 'unos {n} minutos', hour: 'aproximadamente 1 hora', subject: 'Novedades de vela'
+  }
+};
+
+function load(key, fallback) {
+  try { var v = localStorage.getItem(P + key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function save(key, val) {
+  try { localStorage.setItem(P + key, JSON.stringify(val)); } catch (e) {}
+}
+function $(id) { return document.getElementById(id); }
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function clock(addMin) {
+  var d = new Date(new Date().getTime() + (addMin || 0) * 60000);
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function langs() {
+  var l = [];
+  if (settings.es) l.push('es');
+  if (settings.en) l.push('en');
+  return l.length ? l : ['en'];
+}
+
+function show(id) {
+  var s = document.getElementsByTagName('section');
+  for (var i = 0; i < s.length; i++) s[i].className = '';
+  $(id).className = 'on';
+  if (id === 'hub') renderHub();
+  if (id === 'setup') renderSetup();
+  if (id === 'emergency') renderEmergency();
+  window.scrollTo(0, 0);
+}
+function back() { show(prevScreen); }
+
+/* ---------- messages ---------- */
+function build(kind, opts) {
+  var out = [], L = langs(), head = settings.squad ? settings.squad + '\n' : '';
+  for (var i = 0; i < L.length; i++) {
+    var T = TEXT[L[i]], s = T[kind];
+    if (kind === 'eta') {
+      var m = opts.min === 60 ? T.hour : T.min.replace('{n}', opts.min);
+      s = s.replace('{m}', m).replace('{t}', clock(opts.min));
+    } else {
+      s = s.replace('{t}', clock(0));
+    }
+    if (kind === 'results') s = s.replace('{r}', opts.race || '').replace('  ', ' ');
+    out.push(s);
+  }
+  if (kind === 'results') return head + out.join(' / ') + '\n' + opts.body;
+  return head + out.join('\n\n');
+}
+
+function pick(kind, min) {
+  current = build(kind, { min: min });
+  prevScreen = 'hub';
+  $('previewText').textContent = current;
+  current_kind = kind;
+  show('preview');
+}
+
+function cleanResults(raw) {
+  var lines = raw.split(/\r?\n/), out = [];
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i].replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+    if (l) out.push(l);
+  }
+  return out.join('\n');
+}
+function pasteResults() {
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(function (t) { $('resultsText').value = t; },
+      function () { alert('Paste was blocked. Long-press the box and choose Paste.'); });
+  } else {
+    alert('Long-press the box and choose Paste.');
+  }
+}
+function pickResults() {
+  var body = cleanResults($('resultsText').value);
+  if (!body) { alert('Paste or type the results first.'); return; }
+  current = build('results', { race: $('raceNo').value, body: body });
+  current_kind = 'results';
+  prevScreen = 'results';
+  $('previewText').textContent = current;
+  show('preview');
+}
+
+/* ---------- channels ---------- */
+function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent); }
+function role(r) {
+  var out = [];
+  for (var i = 0; i < contacts.length; i++) if (contacts[i].role === r) out.push(contacts[i]);
+  return out;
+}
+function nums(list) {
+  var out = [];
+  for (var i = 0; i < list.length; i++) if (list[i].tel) out.push(list[i].tel.replace(/[^\d+]/g, ''));
+  return out;
+}
+function mails(list) {
+  var out = [];
+  for (var i = 0; i < list.length; i++) if (list[i].email) out.push(list[i].email);
+  return out;
+}
+function logSend(channel, kind) {
+  log.unshift({ t: new Date().getTime(), kind: kind || current_kind, ch: channel, online: navigator.onLine });
+  var cut = new Date().getTime() - 7 * 864e5, keep = [];
+  for (var i = 0; i < log.length; i++) if (log[i].t > cut) keep.push(log[i]);
+  log = keep;
+  save('log', log);
+}
+function shareWhatsApp(text) {
+  if (navigator.share) {
+    navigator.share({ text: text })['catch'](function () {});
+  } else {
+    window.location.href = 'https://wa.me/?text=' + encodeURIComponent(text);
+  }
+}
+function sendWhatsApp() { logSend('WhatsApp group'); shareWhatsApp(current); }
+function sendEmail(r) {
+  var to = mails(role(r));
+  if (!to.length) { alert('No parent email addresses yet. Add them in Setup.'); return; }
+  logSend('Email');
+  window.location.href = 'mailto:?bcc=' + encodeURIComponent(to.join(',')) +
+    '&subject=' + encodeURIComponent(TEXT[langs()[0]].subject) + '&body=' + encodeURIComponent(current);
+}
+function smsLink(list, text) {
+  var n = nums(list);
+  if (!n.length) { alert('No phone numbers yet. Add contacts in Setup.'); return null; }
+  return isIOS() ? 'sms:/open?addresses=' + n.join(',') + '&body=' + encodeURIComponent(text)
+                 : 'sms:' + n.join(',') + '?body=' + encodeURIComponent(text);
+}
+function sendSms(r) {
+  var link = smsLink(role(r), current);
+  if (link) { logSend('SMS'); window.location.href = link; }
+}
+
+/* ---------- emergency ---------- */
+var holdTimer = null;
+function holdStart(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  var b = $('emgBtn');
+  b.className = 'red hold go';
+  holdTimer = setTimeout(function () {
+    b.className = 'red hold';
+    if (navigator.vibrate) navigator.vibrate(200);
+    settings.acks = {};
+    save('settings', settings);
+    show('emergency');
+  }, 2000);
+}
+function holdEnd() {
+  clearTimeout(holdTimer);
+  $('emgBtn').className = 'red hold';
+}
+function renderEmergency() {
+  current = build('emergency');
+  current_kind = 'emergency';
+  $('emgText').textContent = current;
+  var esc_ = role('emergency').concat(role('club')), h = '';
+  esc_.sort(function (a, b) { return (a.role === 'emergency' ? 0 : 1) - (b.role === 'emergency' ? 0 : 1); });
+  for (var i = 0; i < esc_.length; i++) {
+    h += '<a class="btn small" href="tel:' + esc(esc_[i].tel) + '">Call ' + esc(esc_[i].name) + '</a>';
+  }
+  $('escList').innerHTML = h || '<div class="note">No emergency or club contacts tagged yet.</div>';
+  renderAcks();
+}
+function renderAcks() {
+  var p = role('parent'), h = '', n = 0, acks = settings.acks || {};
+  for (var i = 0; i < p.length; i++) {
+    var ok = !!acks[p[i].id];
+    if (ok) n++;
+    h += '<div class="contact ack' + (ok ? ' done' : '') + '" onclick="toggleAck(\'' + p[i].id + '\')">' +
+         '<span>' + esc(p[i].name) + '</span>' +
+         (ok ? '<b>OK</b>' : '<a class="btn small tag" href="tel:' + esc(p[i].tel) + '" onclick="event.stopPropagation()">Call</a>') +
+         '</div>';
+  }
+  $('ackList').innerHTML = h || '<div class="note">No parents tagged yet.</div>';
+  $('ackHead').textContent = '4  Acknowledged ' + n + ' of ' + p.length;
+}
+function toggleAck(id) {
+  settings.acks = settings.acks || {};
+  settings.acks[id] = !settings.acks[id];
+  save('settings', settings);
+  renderAcks();
+}
+function emgSend(ch) {
+  var all = role('parent').concat(role('club')).concat(role('emergency'));
+  if (ch === 'sms') {
+    var link = smsLink(all, current);
+    if (link) { logSend('SMS everyone', 'emergency'); window.location.href = link; }
+  } else {
+    logSend('WhatsApp group', 'emergency');
+    shareWhatsApp(current);
+  }
+}
+function emgClose() {
+  current = build('allsafe');
+  current_kind = 'allsafe';
+  prevScreen = 'emergency';
+  $('previewText').textContent = current;
+  show('preview');
+}
+
+/* ---------- contacts ---------- */
+var ROLES = ['parent', 'club', 'emergency', 'off'];
+var ROLE_LABEL = { parent: 'Parent', club: 'Club', emergency: 'Emergency', off: 'Off' };
+function uid() { return 'c' + new Date().getTime().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
+function addContacts(list) {
+  var added = 0;
+  for (var i = 0; i < list.length; i++) {
+    var c = list[i];
+    if (!c.tel && !c.email) continue;
+    var dup = false;
+    for (var j = 0; j < contacts.length; j++) {
+      if (c.tel && contacts[j].tel === c.tel) dup = true;
+    }
+    if (dup) continue;
+    contacts.push({ id: uid(), name: c.name || c.tel, tel: c.tel || '', email: c.email || '', role: 'parent' });
+    added++;
+  }
+  save('contacts', contacts);
+  $('importNote').textContent = added + ' contact' + (added === 1 ? '' : 's') + ' added.';
+  renderSetup();
+}
+function importContacts() {
+  if (navigator.contacts && navigator.contacts.select) {
+    navigator.contacts.select(['name', 'tel', 'email'], { multiple: true }).then(function (res) {
+      var list = [];
+      for (var i = 0; i < res.length; i++) {
+        list.push({ name: (res[i].name || [])[0], tel: (res[i].tel || [])[0], email: (res[i].email || [])[0] });
+      }
+      addContacts(list);
+    }, function () {});
+  } else {
+    $('importNote').textContent = 'On iPhone: in Contacts, share the parents as a contact card (.vcf), save it to Files, then pick it here.';
+    $('vcf').click();
+  }
+}
+function parseVcf(text) {
+  var lines = text.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '').split(/\r?\n/);
+  var out = [], c = null;
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i], up = l.toUpperCase(), v = l.substring(l.indexOf(':') + 1);
+    if (up.indexOf('BEGIN:VCARD') === 0) c = {};
+    else if (up.indexOf('END:VCARD') === 0 && c) { out.push(c); c = null; }
+    else if (c && up.indexOf('FN') === 0 && (up.charAt(2) === ':' || up.charAt(2) === ';')) c.name = v;
+    else if (c && /^(ITEM\d+\.)?TEL[:;]/.test(up) && !c.tel) c.tel = v;
+    else if (c && /^(ITEM\d+\.)?EMAIL[:;]/.test(up) && !c.email) c.email = v;
+  }
+  return out;
+}
+function cycleRole(id) {
+  for (var i = 0; i < contacts.length; i++) {
+    if (contacts[i].id === id) {
+      var k = ROLES.indexOf(contacts[i].role);
+      contacts[i].role = ROLES[(k + 1) % ROLES.length];
+    }
+  }
+  save('contacts', contacts);
+  renderSetup();
+}
+function loadSample() {
+  addContacts([
+    { name: 'Parent 1 (sample)', tel: '+34600000001', email: 'parent1@example.com' },
+    { name: 'Parent 2 (sample)', tel: '+34600000002', email: 'parent2@example.com' },
+    { name: 'Parent 3 (sample)', tel: '+34600000003', email: '' },
+    { name: 'Club office (sample)', tel: '+34600000010', email: 'office@example.com' },
+    { name: 'Head coach (sample)', tel: '+34600000020', email: '' }
+  ]);
+  contacts[contacts.length - 2].role = 'club';
+  contacts[contacts.length - 1].role = 'emergency';
+  save('contacts', contacts);
+  renderSetup();
+}
+function clearContacts() {
+  if (confirm('Remove all contacts from this app? Your address book is not touched.')) {
+    contacts = []; save('contacts', contacts); renderSetup();
+  }
+}
+function pinTest() {
+  current_kind = 'pin';
+  logSend('WhatsApp group', 'pin');
+  shareWhatsApp(build('pin'));
+}
+
+/* ---------- render ---------- */
+function renderHub() {
+  $('squadTitle').textContent = settings.squad || 'Set up your squad';
+  var p = role('parent').length;
+  $('hubSub').textContent = (settings.regatta ? 'Regatta' : 'Training') + ', ' + p + ' parent' + (p === 1 ? '' : 's') +
+    ', ' + langs().join(' + ').toUpperCase();
+  $('offline').className = navigator.onLine ? 'banner' : 'banner on';
+  $('lastSent').textContent = log.length ? 'Last sent ' + clockOf(log[0].t) + ', ' + log[0].ch : 'Nothing sent today yet.';
+}
+function clockOf(t) { var d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function renderSetup() {
+  $('squadName').value = settings.squad || '';
+  $('langEs').checked = !!settings.es;
+  $('langEn').checked = !!settings.en;
+  $('regatta').checked = !!settings.regatta;
+  $('lightTheme').checked = !!settings.light;
+  var h = '';
+  for (var i = 0; i < contacts.length; i++) {
+    var c = contacts[i];
+    h += '<div class="contact"><span>' + esc(c.name) + '<small>' + esc(c.tel) + (c.email ? ' · ' + esc(c.email) : '') + '</small></span>' +
+         '<button class="tag ' + c.role + '" onclick="cycleRole(\'' + c.id + '\')">' + ROLE_LABEL[c.role] + '</button></div>';
+  }
+  $('contactList').innerHTML = h || '<div class="note" style="margin-bottom:12px">No contacts yet.</div>';
+  var lh = '';
+  for (var j = 0; j < log.length; j++) {
+    var d = new Date(log[j].t);
+    lh += d.getDate() + '/' + (d.getMonth() + 1) + ' ' + clockOf(log[j].t) + ' · ' + esc(log[j].kind) + ' · ' + esc(log[j].ch) +
+          (log[j].online ? '' : ' · no data, not confirmed') + '<br>';
+  }
+  $('logList').innerHTML = lh || 'Nothing sent yet.';
+}
+function bindSetting(id, key, isText) {
+  var el = $(id);
+  el.addEventListener(isText ? 'input' : 'change', function () {
+    settings[key] = isText ? el.value : el.checked;
+    save('settings', settings);
+    if (key === 'light') document.body.className = settings.light ? 'light' : '';
+  });
+}
+
+/* ---------- start ---------- */
+settings = load('settings', { squad: '', es: true, en: true, regatta: false, light: false, acks: {} });
+contacts = load('contacts', []);
+log = load('log', []);
+if (settings.light) document.body.className = 'light';
+bindSetting('squadName', 'squad', true);
+bindSetting('langEs', 'es');
+bindSetting('langEn', 'en');
+bindSetting('regatta', 'regatta');
+bindSetting('lightTheme', 'light');
+$('vcf').addEventListener('change', function () {
+  var f = this.files && this.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () { addContacts(parseVcf(String(r.result))); };
+  r.readAsText(f);
+  this.value = '';
+});
+var eb = $('emgBtn');
+eb.addEventListener('touchstart', holdStart, false);
+eb.addEventListener('touchend', holdEnd, false);
+eb.addEventListener('touchcancel', holdEnd, false);
+eb.addEventListener('mousedown', holdStart, false);
+eb.addEventListener('mouseup', holdEnd, false);
+eb.addEventListener('mouseleave', holdEnd, false);
+window.addEventListener('online', renderHub);
+window.addEventListener('offline', renderHub);
+show(contacts.length ? 'hub' : 'setup');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
