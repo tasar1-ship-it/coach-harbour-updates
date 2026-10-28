@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,7 +13,7 @@
 <style>
   :root {
     --bg: #0b1220; --panel: #151f33; --line: #2a3a58; --ink: #ffffff; --quiet: #b7c3d9;
-    --blue: #3d8bff; --green: #2fbf71; --red: #ff4d4d; --amber: #ffb020;
+    --blue: #3d8bff; --green: #2fbf71; --red: #ff4d4d; --amber: #ffb020; --yellow: #ffd400;
   }
   body.light { --bg: #f4f6fa; --panel: #ffffff; --line: #c9d2e3; --ink: #0b1220; --quiet: #4a5876; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -28,35 +28,46 @@
   section.on { display: block; }
   h1 { font-size: 24px; margin: 4px 0 2px; }
   h2 { font-size: 20px; margin: 18px 0 8px; }
-  .sub { color: var(--quiet); font-size: 15px; margin-bottom: 12px; }
+  .sub { color: var(--quiet); font-size: 15px; margin-bottom: 10px; }
   .row { display: flex; gap: 10px; }
   .row > * { flex: 1; }
   button, .btn {
-    display: block; width: 100%; min-height: 72px; margin: 0 0 12px; padding: 12px 14px;
+    display: block; width: 100%; min-height: 68px; margin: 0 0 10px; padding: 10px 12px;
     border-radius: 14px; border: 2px solid var(--line); background: var(--panel); color: var(--ink);
-    font: inherit; font-size: 22px; font-weight: 700; text-align: center; text-decoration: none;
+    font: inherit; font-size: 21px; font-weight: 700; text-align: center; text-decoration: none;
     cursor: pointer;
   }
   button:active, .btn:active { transform: scale(0.98); }
   .blue { border-color: var(--blue); background: rgba(61,139,255,0.18); }
   .green { border-color: var(--green); background: rgba(47,191,113,0.18); }
   .red { border-color: var(--red); background: rgba(255,77,77,0.2); }
+  .amber { border-color: var(--amber); background: rgba(255,176,32,0.16); }
   .small { min-height: 52px; font-size: 17px; }
-  .eta { min-height: 96px; }
+  .eta { min-height: 88px; }
   .eta b { display: block; font-size: 34px; line-height: 1.1; }
-  .eta span { font-size: 16px; font-weight: 600; }
+  .eta span { font-size: 15px; font-weight: 600; }
   .bar { display: flex; justify-content: space-between; align-items: center; }
   .link { background: none; border: none; min-height: 44px; width: auto; margin: 0; padding: 0 4px;
           color: var(--blue); font-size: 17px; font-weight: 600; }
-  .banner { display: none; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px;
+  .banner { display: none; padding: 10px 12px; border-radius: 10px; margin-bottom: 10px;
             background: rgba(255,176,32,0.2); border: 2px solid var(--amber); font-size: 16px; font-weight: 600; }
   .banner.on { display: block; }
   .last { color: var(--quiet); font-size: 15px; margin-top: 4px; }
-  textarea, input[type=text] {
+  .chips { display: none; gap: 8px; margin-bottom: 10px; }
+  .chips.on { display: flex; }
+  .chip { flex: 1; min-height: 48px; margin: 0; padding: 4px; font-size: 15px; border-radius: 12px; }
+  .chip.sel { border-width: 3px; }
+  .chip.all.sel { border-color: var(--ink); }
+  .chip.yel.sel { border-color: var(--yellow); background: rgba(255,212,0,0.2); }
+  .chip.blu.sel { border-color: var(--blue); background: rgba(61,139,255,0.2); }
+  .chip.rd.sel { border-color: var(--red); background: rgba(255,77,77,0.2); }
+  textarea, input[type=text], input[type=url], input[type=time] {
     width: 100%; font: inherit; font-size: 18px; color: var(--ink); background: var(--panel);
     border: 2px solid var(--line); border-radius: 12px; padding: 12px; -webkit-user-select: text; user-select: text;
   }
-  textarea { min-height: 180px; }
+  input[type=time] { font-size: 28px; font-weight: 700; text-align: center; }
+  textarea { min-height: 150px; }
+  .gap { height: 10px; }
   .preview { white-space: pre-wrap; background: var(--panel); border: 2px solid var(--line);
              border-radius: 12px; padding: 14px; font-size: 18px; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
   .contact { display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -89,99 +100,156 @@
 <section id="hub">
   <div class="bar">
     <h1 id="squadTitle">Squad</h1>
-    <button class="link" onclick="show('setup')">Setup</button>
+    <button class="link" onclick="show('setup')" data-t="setup">Ajustes</button>
   </div>
   <div class="sub" id="hubSub"></div>
-  <div class="banner" id="offline">No data signal: WhatsApp and Mail will wait. Use SMS to be sure.</div>
-  <div class="sub" style="margin:0 0 6px">In harbour in about</div>
-  <div class="row">
-    <button class="blue eta" onclick="pick('eta',30)"><b>30</b><span>min</span></button>
-    <button class="blue eta" onclick="pick('eta',45)"><b>45</b><span>min</span></button>
-    <button class="blue eta" onclick="pick('eta',60)"><b>1</b><span>hour</span></button>
+  <div class="chips" id="fleetRow">
+    <button class="chip all" id="fl-all" onclick="setFleet('')" data-t="all">Todos</button>
+    <button class="chip yel" id="fl-yellow" onclick="setFleet('yellow')" data-t="yellow">Amarillo</button>
+    <button class="chip blu" id="fl-blue" onclick="setFleet('blue')" data-t="blue">Azul</button>
+    <button class="chip rd" id="fl-red" onclick="setFleet('red')" data-t="red">Rojo</button>
   </div>
-  <button onclick="pick('delayed')">Delayed, new time follows</button>
-  <button onclick="pick('ashore')">Back on shore, all safe</button>
-  <button class="green" onclick="show('results')">Race results</button>
-  <button class="red hold" id="emgBtn"><span class="fill"></span><span class="lbl">EMERGENCY<small>press and hold 2 seconds</small></span></button>
+  <div class="banner" id="offline" data-t="offline">Sin datos: WhatsApp esperará. Usa SMS si es urgente.</div>
+  <div class="row">
+    <button class="blue" onclick="pick('water')" data-t="b_water">Al agua</button>
+    <button class="blue" onclick="pick('lastrace')" data-t="b_lastrace">Última prueba</button>
+  </div>
+  <div class="sub" style="margin:0 0 6px" data-t="readyin">Listos para recoger en</div>
+  <div class="row">
+    <button class="blue eta" onclick="pick('ready',30)"><b>30</b><span>min</span></button>
+    <button class="blue eta" onclick="pick('ready',45)"><b>45</b><span>min</span></button>
+    <button class="blue eta" onclick="pick('ready',60)"><b>60</b><span>min</span></button>
+  </div>
+  <div class="row">
+    <button onclick="pick('heading')" data-t="b_heading">Vamos a puerto</button>
+    <button class="green" onclick="pick('readynow')" data-t="b_readynow">Ya están listos</button>
+  </div>
+  <div class="row">
+    <button onclick="show('prize')" data-t="b_prize">Entrega premios</button>
+    <button class="green" onclick="show('results')" data-t="b_results">Resultados</button>
+  </div>
+  <button class="amber" onclick="show('plan')" data-t="b_plan">Cambio de plan</button>
+  <button class="red hold" id="emgBtn"><span class="fill"></span><span class="lbl"><span data-t="b_emg">EMERGENCIA</span><small data-t="b_hold">mantén pulsado 2 segundos</small></span></button>
   <div class="last" id="lastSent"></div>
 </section>
 
 <!-- PREVIEW -->
 <section id="preview">
-  <div class="bar"><h1>Check and send</h1><button class="link" onclick="back()">Back</button></div>
+  <div class="bar"><h1 data-t="check">Revisar y enviar</h1><button class="link" onclick="back()" data-t="back">Volver</button></div>
   <div class="preview" id="previewText"></div>
-  <button class="green" onclick="sendWhatsApp()">WhatsApp group</button>
-  <button onclick="sendEmail('parent')">Email parents (Bcc)</button>
-  <button onclick="sendSms('parent')">SMS parents</button>
-  <div class="note">Nothing is sent until you tap send in WhatsApp, Mail or Messages.</div>
+  <button class="green" onclick="sendWhatsApp()" data-t="s_wa">Grupo de WhatsApp</button>
+  <button onclick="sendEmail('parent')" data-t="s_mail">Email a padres (CCO)</button>
+  <button onclick="sendSms('parent')" data-t="s_sms">SMS a padres</button>
+  <div class="note" data-t="nosend">Nada se envía hasta que pulses enviar en WhatsApp, Mail o Mensajes.</div>
+</section>
+
+<!-- CHANGE OF PLAN -->
+<section id="plan">
+  <div class="bar"><h1 data-t="b_plan">Cambio de plan</h1><button class="link" onclick="show('hub')" data-t="back">Volver</button></div>
+  <div class="sub" data-t="readyin">Listos para recoger en</div>
+  <div class="chips on">
+    <button class="chip" id="pe-30" onclick="setPlanEta(30)">30 min</button>
+    <button class="chip" id="pe-45" onclick="setPlanEta(45)">45 min</button>
+    <button class="chip" id="pe-60" onclick="setPlanEta(60)">60 min</button>
+  </div>
+  <button class="amber" onclick="pick('early', settings.planEta)" data-t="p_early">Entramos antes (tiempo)</button>
+  <button class="amber" onclick="pick('abandoned', settings.planEta)" data-t="p_abandoned">Regata anulada hoy</button>
+  <button onclick="pick('delayed')" data-t="p_delayed">Vamos con retraso</button>
+  <button onclick="pick('cancelled')" data-t="p_cancelled">Entreno cancelado (aviso)</button>
+</section>
+
+<!-- PRIZE-GIVING -->
+<section id="prize">
+  <div class="bar"><h1 data-t="b_prize">Entrega premios</h1><button class="link" onclick="show('hub')" data-t="back">Volver</button></div>
+  <input type="time" id="prizeTime" value="17:30">
+  <div class="gap"></div>
+  <input type="text" id="prizePlace" placeholder="Lugar (p. ej. el CNA)">
+  <div class="gap"></div>
+  <button class="green" onclick="pickPrize()" data-t="z_send">Enviar hora de entrega</button>
+  <button onclick="pick('prizetbd')" data-t="z_tbd">Aún no hay hora</button>
 </section>
 
 <!-- RESULTS -->
 <section id="results">
-  <div class="bar"><h1>Race results</h1><button class="link" onclick="show('hub')">Back</button></div>
-  <div class="sub">Paste, check, send. Only what you paste is sent.</div>
-  <input type="text" id="raceNo" placeholder="Race number (e.g. 3)" inputmode="numeric">
-  <div style="height:10px"></div>
+  <div class="bar"><h1 data-t="b_results">Resultados</h1><button class="link" onclick="show('hub')" data-t="back">Volver</button></div>
+  <div class="sub" data-t="r_link">Enlace de resultados de la regata (se guarda para hoy)</div>
+  <input type="url" id="resultsUrl" placeholder="https://...">
+  <div class="gap"></div>
+  <button class="small" onclick="pasteInto('resultsUrl')" data-t="r_paste">Pegar del portapapeles</button>
+  <button class="green" onclick="pickResultsLink()" data-t="r_sendlink">Enviar enlace</button>
+  <h2 data-t="r_or">O pega la clasificación</h2>
+  <input type="text" id="raceNo" placeholder="Prueba n.º (opcional)" inputmode="numeric">
+  <div class="gap"></div>
   <textarea id="resultsText" placeholder="1. ESP 1234&#10;2. ESP 2201&#10;3. GER 1102"></textarea>
   <div style="height:12px"></div>
-  <button class="small" onclick="pasteResults()">Paste from clipboard</button>
-  <button class="green" onclick="pickResults()">Preview and send</button>
+  <button class="small" onclick="pasteInto('resultsText')" data-t="r_paste">Pegar del portapapeles</button>
+  <button class="green" onclick="pickResults()" data-t="r_preview">Revisar y enviar</button>
 </section>
 
 <!-- EMERGENCY -->
 <section id="emergency">
-  <div class="bar"><h1>Emergency</h1><button class="link" onclick="show('hub')">Exit</button></div>
-  <div class="sub">Follow the steps in order.</div>
+  <div class="bar"><h1 data-t="b_emg">EMERGENCIA</h1><button class="link" onclick="show('hub')" data-t="exit">Salir</button></div>
+  <div class="sub" data-t="e_order">Sigue los pasos en orden.</div>
   <div class="step red">
-    <h3>1  Rescue first</h3>
-    <a class="btn red" href="tel:112">Call 112</a>
-    <div class="note">Or VHF channel 16 from the RIB radio.</div>
+    <h3 data-t="e1">1  Primero el rescate</h3>
+    <a class="btn red" href="tel:112" data-t="e_112">Llamar al 112</a>
+    <div class="note" data-t="e_vhf">O canal 16 de VHF desde la neumática.</div>
   </div>
   <div class="step">
-    <h3>2  Alert parents and club</h3>
+    <h3 data-t="e2">2  Avisar a padres y club</h3>
     <div class="preview" id="emgText"></div>
-    <button class="red" onclick="emgSend('sms')">SMS everyone</button>
-    <button class="small" onclick="emgSend('wa')">WhatsApp group</button>
+    <button class="red" onclick="emgSend('sms')" data-t="e_sms">SMS a todos</button>
+    <button class="small" onclick="emgSend('wa')" data-t="s_wa">Grupo de WhatsApp</button>
   </div>
   <div class="step">
-    <h3>3  Call down the list</h3>
+    <h3 data-t="e3">3  Llamar por orden</h3>
     <div id="escList"></div>
   </div>
   <div class="step">
-    <h3 id="ackHead">4  Acknowledged</h3>
-    <div class="note" style="margin-bottom:8px">Tap a name when they reply. Call anyone still open.</div>
+    <h3 id="ackHead">4</h3>
+    <div class="note" style="margin-bottom:8px" data-t="e_tap">Toca un nombre cuando responda. Llama a quien falte.</div>
     <div id="ackList"></div>
   </div>
-  <button class="green" onclick="emgClose()">Close: all safe and ashore</button>
+  <button class="green" onclick="emgClose()" data-t="e_close">Cerrar: todos bien y en tierra</button>
 </section>
 
 <!-- SETUP -->
 <section id="setup">
-  <div class="bar"><h1>Setup</h1><button class="link" onclick="show('hub')">Done</button></div>
-  <div class="sub">Do this once, on land.</div>
-  <input type="text" id="squadName" placeholder="Squad name, e.g. Optimist B squad">
-  <div style="height:10px"></div>
+  <div class="bar"><h1 data-t="setup">Ajustes</h1><button class="link" onclick="show('hub')" data-t="done">Listo</button></div>
+  <div class="sub" data-t="onland">Hazlo una vez, en tierra.</div>
+  <input type="text" id="squadName" placeholder="Grupo, p. ej. Optimist Desarrollo 1">
+  <div class="gap"></div>
+  <div class="sub" style="margin:0 0 6px" data-t="u_lang">Idioma de la app</div>
+  <div class="row">
+    <label class="chk"><input type="radio" name="ui" id="uiEs"> Español</label>
+    <label class="chk"><input type="radio" name="ui" id="uiEn"> English</label>
+  </div>
+  <div class="sub" style="margin:6px 0" data-t="m_lang">Idiomas de los mensajes</div>
   <div class="row">
     <label class="chk"><input type="checkbox" id="langEs"> Español</label>
     <label class="chk"><input type="checkbox" id="langEn"> English</label>
   </div>
-  <label class="chk"><input type="checkbox" id="regatta"> Today is a regatta day</label>
-  <label class="chk"><input type="checkbox" id="lightTheme"> Light theme (overcast days)</label>
 
-  <h2>Contacts</h2>
-  <button class="blue" onclick="importContacts()">Import from your address book</button>
+  <h2 data-t="today">Hoy</h2>
+  <label class="chk"><input type="checkbox" id="regatta"> <span data-t="regday">Día de regata (grupos por colores)</span></label>
+  <input type="text" id="pickupPlace" placeholder="Lugar de recogida, p. ej. el CNA">
+  <div class="gap"></div>
+  <label class="chk"><input type="checkbox" id="lightTheme"> <span data-t="light">Tema claro (días nublados)</span></label>
+
+  <h2 data-t="contacts">Contactos</h2>
+  <button class="blue" onclick="importContacts()" data-t="import">Importar de tu agenda</button>
   <input type="file" id="vcf" accept=".vcf,text/vcard,text/x-vcard" style="display:none">
   <div class="note" id="importNote" style="margin:-4px 0 12px"></div>
-  <div class="note" style="margin-bottom:10px">Tap a tag to change it: Parent, Club, Emergency, or Off.</div>
+  <div class="note" style="margin-bottom:10px" data-t="tagnote">Toca la etiqueta para cambiarla: Padre/madre, Club, Emergencia o Fuera.</div>
   <div id="contactList"></div>
-  <button class="small" onclick="loadSample()">Load sample contacts (testing)</button>
-  <button class="small" onclick="clearContacts()">Remove all contacts</button>
+  <button class="small" onclick="loadSample()" data-t="sample">Cargar contactos de ejemplo (pruebas)</button>
+  <button class="small" onclick="clearContacts()" data-t="clear">Quitar todos los contactos</button>
 
-  <h2>WhatsApp group</h2>
-  <button class="green small" onclick="pinTest()">Send a test message to pin the group</button>
-  <div class="note">Pick the parents' group once. WhatsApp then shows it at the top of its share list.</div>
+  <h2>WhatsApp</h2>
+  <button class="green small" onclick="pinTest()" data-t="pin">Mensaje de prueba para fijar el grupo</button>
+  <div class="note" data-t="pinnote">Elige el grupo de padres una vez. WhatsApp lo mostrará primero en la lista.</div>
 
-  <h2>Send log (last 7 days)</h2>
+  <h2 data-t="logh">Registro (últimos 7 días)</h2>
   <div id="logList" class="note"></div>
 </section>
 
@@ -189,28 +257,85 @@
 var P = 'chu1_';
 var settings, contacts, log, current = '', current_kind = '', prevScreen = 'hub';
 
+/* Message wording follows how the squad's coach already writes in the parents' group: short and informal. */
 var TEXT = {
+  es: {
+    water: '¡Al agua!',
+    lastrace: 'Empezamos la última prueba.',
+    heading: 'Hemos acabado, vamos a puerto.',
+    ready: 'Vamos a puerto. Estarán listos sobre las {t}{p}.',
+    readynow: 'Ya están listos{p}.',
+    early: 'Entramos antes por las condiciones. Estarán listos sobre las {t}{p}.',
+    abandoned: 'Regata anulada por hoy. Ahora desmontan; estarán listos sobre las {t}{p}.',
+    delayed: 'Vamos con retraso, todos bien. Aviso enseguida con la nueva hora.',
+    cancelled: 'Se cancela el entreno de hoy por el aviso meteorológico. Gracias.',
+    prize: 'Entrega de premios a las {pt}{pp}.',
+    prizetbd: 'Aún no hay hora de entrega de premios, aviso enseguida.',
+    results: '¡Resultados!',
+    resultsRace: 'Resultados prueba {r}:',
+    emergency: 'URGENTE: incidente en el agua. Los entrenadores se están ocupando. Llamaremos directamente a los padres afectados. Mantened el teléfono libre y responded OK.',
+    allsafe: 'Actualización ({t}): el incidente ha terminado. Todos los regatistas están bien y en tierra. Gracias.',
+    pin: 'Mensaje de prueba de la app del entrenador. Ignoradlo, por favor.',
+    at: ' en ', subject: 'Novedades de vela',
+    fleet: { yellow: 'Grupo amarillo', blue: 'Grupo azul', red: 'Grupo rojo' }
+  },
   en: {
-    eta: 'The children will be back in the harbour in {m} (around {t}).',
-    delayed: 'We are running late. The children are fine. A new arrival time follows shortly.',
-    ashore: 'All sailors are back on shore and safe ({t}).',
-    results: 'Race {r} results:',
+    water: 'On the water!',
+    lastrace: 'Starting the last race.',
+    heading: 'Finished, heading in.',
+    ready: 'Heading in. Ready to collect at about {t}{p}.',
+    readynow: 'Ready to collect now{p}.',
+    early: 'Coming in early because of the conditions. Ready to collect at about {t}{p}.',
+    abandoned: 'Racing abandoned for today. Derigging now; ready to collect at about {t}{p}.',
+    delayed: 'Running late, everyone is fine. New time follows shortly.',
+    cancelled: "Today's training is cancelled because of the weather warning. Thank you.",
+    prize: 'Prize-giving at {pt}{pp}.',
+    prizetbd: 'No prize-giving time yet; we will let you know.',
+    results: 'Results!',
+    resultsRace: 'Race {r} results:',
     emergency: 'URGENT: incident on the water. The coaches are dealing with it. We will call the parents concerned directly. Please keep your phone free and reply OK.',
     allsafe: 'Update ({t}): the incident is over. All sailors are safe and ashore. Thank you.',
     pin: 'Test message from the coach app. Please ignore.',
-    min: 'about {n} minutes', hour: 'about 1 hour', subject: 'Sailing update'
-  },
-  es: {
-    eta: 'Los niños estarán de vuelta en el puerto en {m} (sobre las {t}).',
-    delayed: 'Vamos con retraso. Los niños están bien. En breve enviamos la nueva hora de llegada.',
-    ashore: 'Todos los regatistas están en tierra y bien ({t}).',
-    results: 'Resultados de la regata {r}:',
-    emergency: 'URGENTE: incidente en el agua. Los entrenadores se están ocupando. Llamaremos directamente a los padres afectados. Mantengan el teléfono libre y respondan OK.',
-    allsafe: 'Actualización ({t}): el incidente ha terminado. Todos los regatistas están bien y en tierra. Gracias.',
-    pin: 'Mensaje de prueba de la app del entrenador. Ignórenlo, por favor.',
-    min: 'unos {n} minutos', hour: 'aproximadamente 1 hora', subject: 'Novedades de vela'
+    at: ' at ', subject: 'Sailing update',
+    fleet: { yellow: 'Yellow fleet', blue: 'Blue fleet', red: 'Red fleet' }
   }
 };
+
+/* Coach-facing labels; Spanish is the default because the squad's coach and group write in Spanish. */
+var UI = {
+  en: {
+    setup: 'Setup', all: 'All', yellow: 'Yellow', blue: 'Blue', red: 'Red',
+    offline: 'No data signal: WhatsApp will wait. Use SMS if it is urgent.',
+    b_water: 'On the water', b_lastrace: 'Last race', readyin: 'Ready to collect in',
+    b_heading: 'Heading in', b_readynow: 'Ready now', b_prize: 'Prize-giving', b_results: 'Results',
+    b_plan: 'Change of plan', b_emg: 'EMERGENCY', b_hold: 'press and hold 2 seconds',
+    check: 'Check and send', back: 'Back', s_wa: 'WhatsApp group', s_mail: 'Email parents (Bcc)', s_sms: 'SMS parents',
+    nosend: 'Nothing is sent until you tap send in WhatsApp, Mail or Messages.',
+    p_early: 'Coming in early (weather)', p_abandoned: 'Racing abandoned today', p_delayed: 'Running late',
+    p_cancelled: 'Training cancelled (warning)', z_send: 'Send prize-giving time', z_tbd: 'No time yet',
+    r_link: 'Regatta results link (kept for today)', r_paste: 'Paste from clipboard', r_sendlink: 'Send link',
+    r_or: 'Or paste the standings', r_preview: 'Preview and send',
+    exit: 'Exit', e_order: 'Follow the steps in order.', e1: '1  Rescue first', e_112: 'Call 112',
+    e_vhf: 'Or VHF channel 16 from the RIB radio.', e2: '2  Alert parents and club', e_sms: 'SMS everyone',
+    e3: '3  Call down the list', e_tap: 'Tap a name when they reply. Call anyone still open.',
+    e_close: 'Close: all safe and ashore', ack: 'Acknowledged',
+    done: 'Done', onland: 'Do this once, on land.', u_lang: 'App language', m_lang: 'Message languages',
+    today: 'Today', regday: 'Regatta day (colour fleets)', light: 'Light theme (overcast days)',
+    contacts: 'Contacts', import: 'Import from your address book',
+    tagnote: 'Tap a tag to change it: Parent, Club, Emergency, or Off.',
+    sample: 'Load sample contacts (testing)', clear: 'Remove all contacts',
+    pin: 'Send a test message to pin the group', pinnote: "Pick the parents' group once. WhatsApp then shows it at the top of its share list.",
+    logh: 'Send log (last 7 days)', training: 'Training', regatta: 'Regatta', parents: 'parents',
+    lastsent: 'Last sent', nothing: 'Nothing sent today yet.',
+    roles: { parent: 'Parent', club: 'Club', emergency: 'Emergency', off: 'Off' }
+  },
+  es: {
+    ack: 'Confirmados', training: 'Entreno', regatta: 'Regata', parents: 'padres',
+    lastsent: 'Último envío', nothing: 'Hoy no se ha enviado nada.',
+    roles: { parent: 'Padre/madre', club: 'Club', emergency: 'Emergencia', off: 'Fuera' }
+  }
+};
+var HTML_TEXT = {};
 
 function load(key, fallback) {
   try { var v = localStorage.getItem(P + key); return v ? JSON.parse(v) : fallback; }
@@ -226,13 +351,31 @@ function esc(s) {
 function pad(n) { return n < 10 ? '0' + n : '' + n; }
 function clock(addMin) {
   var d = new Date(new Date().getTime() + (addMin || 0) * 60000);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+  /* round to the next 5 minutes, as coaches do ("sobre las 16:15") */
+  var m = Math.ceil(d.getMinutes() / 5) * 5;
+  if (m === 60) { d.setHours(d.getHours() + 1); m = 0; }
+  return pad(d.getHours()) + ':' + pad(m);
 }
 function langs() {
   var l = [];
   if (settings.es) l.push('es');
   if (settings.en) l.push('en');
-  return l.length ? l : ['en'];
+  return l.length ? l : ['es'];
+}
+function t(key) {
+  var d = UI[settings.ui] || {};
+  if (d[key] !== undefined) return d[key];
+  return settings.ui === 'en' ? key : HTML_TEXT[key];
+}
+function applyUi() {
+  var els = document.querySelectorAll('[data-t]');
+  for (var i = 0; i < els.length; i++) {
+    var k = els[i].getAttribute('data-t');
+    if (HTML_TEXT[k] === undefined) HTML_TEXT[k] = els[i].textContent;
+    var v = settings.ui === 'en' ? UI.en[k] : HTML_TEXT[k];
+    if (v !== undefined) els[i].textContent = v;
+  }
+  document.documentElement.lang = settings.ui;
 }
 
 function show(id) {
@@ -242,34 +385,59 @@ function show(id) {
   if (id === 'hub') renderHub();
   if (id === 'setup') renderSetup();
   if (id === 'emergency') renderEmergency();
+  if (id === 'plan') setPlanEta(settings.planEta);
+  if (id === 'prize' && !$('prizePlace').value) $('prizePlace').value = settings.place || '';
+  if (id === 'results') $('resultsUrl').value = todayUrl();
   window.scrollTo(0, 0);
 }
 function back() { show(prevScreen); }
 
 /* ---------- messages ---------- */
 function build(kind, opts) {
-  var out = [], L = langs(), head = settings.squad ? settings.squad + '\n' : '';
+  opts = opts || {};
+  var out = [], L = langs();
   for (var i = 0; i < L.length; i++) {
     var T = TEXT[L[i]], s = T[kind];
-    if (kind === 'eta') {
-      var m = opts.min === 60 ? T.hour : T.min.replace('{n}', opts.min);
-      s = s.replace('{m}', m).replace('{t}', clock(opts.min));
-    } else {
-      s = s.replace('{t}', clock(0));
+    var place = settings.place ? T.at + settings.place : '';
+    if (kind === 'results' && opts.race) s = T.resultsRace.replace('{r}', opts.race);
+    s = s.replace('{t}', clock(opts.min || 0)).replace('{p}', place)
+         .replace('{pt}', opts.prizeTime || '').replace('{pp}', opts.prizePlace ? T.at + opts.prizePlace : '');
+    if (settings.regatta && settings.fleet && kind !== 'emergency' && kind !== 'allsafe' && kind !== 'pin') {
+      s = T.fleet[settings.fleet] + ': ' + s;
     }
-    if (kind === 'results') s = s.replace('{r}', opts.race || '').replace('  ', ' ');
     out.push(s);
   }
-  if (kind === 'results') return head + out.join(' / ') + '\n' + opts.body;
-  return head + out.join('\n\n');
+  var text = out.join(kind === 'results' ? ' / ' : '\n\n');
+  if (kind === 'results') text += '\n' + opts.body;
+  return text;
 }
+function withSquad(text) { return settings.squad ? settings.squad + '\n' + text : text; }
 
 function pick(kind, min) {
   current = build(kind, { min: min });
-  prevScreen = 'hub';
-  $('previewText').textContent = current;
   current_kind = kind;
+  prevScreen = (kind === 'early' || kind === 'abandoned' || kind === 'delayed' || kind === 'cancelled') ? 'plan'
+             : (kind === 'prizetbd' ? 'prize' : 'hub');
+  $('previewText').textContent = current;
   show('preview');
+}
+function pickPrize() {
+  current = build('prize', { prizeTime: $('prizeTime').value, prizePlace: $('prizePlace').value });
+  current_kind = 'prize';
+  prevScreen = 'prize';
+  $('previewText').textContent = current;
+  show('preview');
+}
+function setFleet(f) {
+  settings.fleet = f;
+  save('settings', settings);
+  renderHub();
+}
+function setPlanEta(n) {
+  settings.planEta = n || 45;
+  save('settings', settings);
+  var opts = [30, 45, 60];
+  for (var i = 0; i < opts.length; i++) $('pe-' + opts[i]).className = 'chip' + (opts[i] === settings.planEta ? ' sel all' : '');
 }
 
 function cleanResults(raw) {
@@ -280,17 +448,31 @@ function cleanResults(raw) {
   }
   return out.join('\n');
 }
-function pasteResults() {
+function pasteInto(id) {
   if (navigator.clipboard && navigator.clipboard.readText) {
-    navigator.clipboard.readText().then(function (t) { $('resultsText').value = t; },
-      function () { alert('Paste was blocked. Long-press the box and choose Paste.'); });
+    navigator.clipboard.readText().then(function (x) { $(id).value = x; },
+      function () { alert(settings.ui === 'en' ? 'Paste was blocked. Long-press the box and choose Paste.' : 'No se pudo pegar. Mantén pulsado el campo y elige Pegar.'); });
   } else {
-    alert('Long-press the box and choose Paste.');
+    alert(settings.ui === 'en' ? 'Long-press the box and choose Paste.' : 'Mantén pulsado el campo y elige Pegar.');
   }
+}
+function dayKey() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function todayUrl() { return settings.resultsDay === dayKey() ? (settings.resultsUrl || '') : ''; }
+function pickResultsLink() {
+  var url = $('resultsUrl').value.replace(/^\s+|\s+$/g, '');
+  if (!/^https?:\/\//i.test(url)) { alert(settings.ui === 'en' ? 'Paste the results link first.' : 'Pega primero el enlace de resultados.'); return; }
+  settings.resultsUrl = url;
+  settings.resultsDay = dayKey();
+  save('settings', settings);
+  current = build('results', { body: url });
+  current_kind = 'results';
+  prevScreen = 'results';
+  $('previewText').textContent = current;
+  show('preview');
 }
 function pickResults() {
   var body = cleanResults($('resultsText').value);
-  if (!body) { alert('Paste or type the results first.'); return; }
+  if (!body) { alert(settings.ui === 'en' ? 'Paste or type the results first.' : 'Pega o escribe primero los resultados.'); return; }
   current = build('results', { race: $('raceNo').value, body: body });
   current_kind = 'results';
   prevScreen = 'results';
@@ -329,22 +511,24 @@ function shareWhatsApp(text) {
     window.location.href = 'https://wa.me/?text=' + encodeURIComponent(text);
   }
 }
-function sendWhatsApp() { logSend('WhatsApp group'); shareWhatsApp(current); }
+/* The WhatsApp group already knows which squad it is, so the squad name is added only to SMS and email. */
+function sendWhatsApp() { logSend('WhatsApp'); shareWhatsApp(current); }
 function sendEmail(r) {
   var to = mails(role(r));
-  if (!to.length) { alert('No parent email addresses yet. Add them in Setup.'); return; }
+  if (!to.length) { alert(settings.ui === 'en' ? 'No parent email addresses yet. Add them in Setup.' : 'Aún no hay emails de padres. Añádelos en Ajustes.'); return; }
   logSend('Email');
   window.location.href = 'mailto:?bcc=' + encodeURIComponent(to.join(',')) +
-    '&subject=' + encodeURIComponent(TEXT[langs()[0]].subject) + '&body=' + encodeURIComponent(current);
+    '&subject=' + encodeURIComponent((settings.squad ? settings.squad + ': ' : '') + TEXT[langs()[0]].subject) +
+    '&body=' + encodeURIComponent(current);
 }
 function smsLink(list, text) {
   var n = nums(list);
-  if (!n.length) { alert('No phone numbers yet. Add contacts in Setup.'); return null; }
+  if (!n.length) { alert(settings.ui === 'en' ? 'No phone numbers yet. Add contacts in Setup.' : 'Aún no hay teléfonos. Añade contactos en Ajustes.'); return null; }
   return isIOS() ? 'sms:/open?addresses=' + n.join(',') + '&body=' + encodeURIComponent(text)
                  : 'sms:' + n.join(',') + '?body=' + encodeURIComponent(text);
 }
 function sendSms(r) {
-  var link = smsLink(role(r), current);
+  var link = smsLink(role(r), withSquad(current));
   if (link) { logSend('SMS'); window.location.href = link; }
 }
 
@@ -370,12 +554,11 @@ function renderEmergency() {
   current = build('emergency');
   current_kind = 'emergency';
   $('emgText').textContent = current;
-  var esc_ = role('emergency').concat(role('club')), h = '';
-  esc_.sort(function (a, b) { return (a.role === 'emergency' ? 0 : 1) - (b.role === 'emergency' ? 0 : 1); });
-  for (var i = 0; i < esc_.length; i++) {
-    h += '<a class="btn small" href="tel:' + esc(esc_[i].tel) + '">Call ' + esc(esc_[i].name) + '</a>';
+  var list = role('emergency').concat(role('club')), h = '';
+  for (var i = 0; i < list.length; i++) {
+    h += '<a class="btn small" href="tel:' + esc(list[i].tel) + '">' + (settings.ui === 'en' ? 'Call ' : 'Llamar a ') + esc(list[i].name) + '</a>';
   }
-  $('escList').innerHTML = h || '<div class="note">No emergency or club contacts tagged yet.</div>';
+  $('escList').innerHTML = h || '<div class="note">' + (settings.ui === 'en' ? 'No emergency or club contacts tagged yet.' : 'Aún no hay contactos de emergencia o club.') + '</div>';
   renderAcks();
 }
 function renderAcks() {
@@ -385,11 +568,11 @@ function renderAcks() {
     if (ok) n++;
     h += '<div class="contact ack' + (ok ? ' done' : '') + '" onclick="toggleAck(\'' + p[i].id + '\')">' +
          '<span>' + esc(p[i].name) + '</span>' +
-         (ok ? '<b>OK</b>' : '<a class="btn small tag" href="tel:' + esc(p[i].tel) + '" onclick="event.stopPropagation()">Call</a>') +
+         (ok ? '<b>OK</b>' : '<a class="btn small tag" href="tel:' + esc(p[i].tel) + '" onclick="event.stopPropagation()">' + (settings.ui === 'en' ? 'Call' : 'Llamar') + '</a>') +
          '</div>';
   }
-  $('ackList').innerHTML = h || '<div class="note">No parents tagged yet.</div>';
-  $('ackHead').textContent = '4  Acknowledged ' + n + ' of ' + p.length;
+  $('ackList').innerHTML = h || '<div class="note">-</div>';
+  $('ackHead').textContent = '4  ' + t('ack') + ' ' + n + ' / ' + p.length;
 }
 function toggleAck(id) {
   settings.acks = settings.acks || {};
@@ -400,10 +583,10 @@ function toggleAck(id) {
 function emgSend(ch) {
   var all = role('parent').concat(role('club')).concat(role('emergency'));
   if (ch === 'sms') {
-    var link = smsLink(all, current);
-    if (link) { logSend('SMS everyone', 'emergency'); window.location.href = link; }
+    var link = smsLink(all, withSquad(current));
+    if (link) { logSend('SMS', 'emergency'); window.location.href = link; }
   } else {
-    logSend('WhatsApp group', 'emergency');
+    logSend('WhatsApp', 'emergency');
     shareWhatsApp(current);
   }
 }
@@ -417,7 +600,6 @@ function emgClose() {
 
 /* ---------- contacts ---------- */
 var ROLES = ['parent', 'club', 'emergency', 'off'];
-var ROLE_LABEL = { parent: 'Parent', club: 'Club', emergency: 'Emergency', off: 'Off' };
 function uid() { return 'c' + new Date().getTime().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
 function addContacts(list) {
   var added = 0;
@@ -433,7 +615,7 @@ function addContacts(list) {
     added++;
   }
   save('contacts', contacts);
-  $('importNote').textContent = added + ' contact' + (added === 1 ? '' : 's') + ' added.';
+  $('importNote').textContent = '+' + added;
   renderSetup();
 }
 function importContacts() {
@@ -446,7 +628,9 @@ function importContacts() {
       addContacts(list);
     }, function () {});
   } else {
-    $('importNote').textContent = 'On iPhone: in Contacts, share the parents as a contact card (.vcf), save it to Files, then pick it here.';
+    $('importNote').textContent = settings.ui === 'en'
+      ? 'On iPhone: in Contacts, share the parents as a contact card (.vcf), save it to Files, then pick it here.'
+      : 'En iPhone: en Contactos, comparte a los padres como tarjeta (.vcf), guárdala en Archivos y elígela aquí.';
     $('vcf').click();
   }
 }
@@ -487,46 +671,52 @@ function loadSample() {
   renderSetup();
 }
 function clearContacts() {
-  if (confirm('Remove all contacts from this app? Your address book is not touched.')) {
+  if (confirm(settings.ui === 'en' ? 'Remove all contacts from this app? Your address book is not touched.' : '¿Quitar todos los contactos de la app? Tu agenda no se toca.')) {
     contacts = []; save('contacts', contacts); renderSetup();
   }
 }
 function pinTest() {
   current_kind = 'pin';
-  logSend('WhatsApp group', 'pin');
+  logSend('WhatsApp', 'pin');
   shareWhatsApp(build('pin'));
 }
 
 /* ---------- render ---------- */
 function renderHub() {
-  $('squadTitle').textContent = settings.squad || 'Set up your squad';
+  $('squadTitle').textContent = settings.squad || (settings.ui === 'en' ? 'Set up your squad' : 'Configura tu grupo');
   var p = role('parent').length;
-  $('hubSub').textContent = (settings.regatta ? 'Regatta' : 'Training') + ', ' + p + ' parent' + (p === 1 ? '' : 's') +
-    ', ' + langs().join(' + ').toUpperCase();
+  $('hubSub').textContent = (settings.regatta ? t('regatta') : t('training')) + ', ' + (settings.place || '-') +
+    ', ' + p + ' ' + t('parents') + ', ' + langs().join(' + ').toUpperCase();
+  $('fleetRow').className = settings.regatta ? 'chips on' : 'chips';
+  var f = ['', 'yellow', 'blue', 'red'], ids = ['fl-all', 'fl-yellow', 'fl-blue', 'fl-red'], cls = ['all', 'yel', 'blu', 'rd'];
+  for (var i = 0; i < f.length; i++) $(ids[i]).className = 'chip ' + cls[i] + ((settings.fleet || '') === f[i] ? ' sel' : '');
   $('offline').className = navigator.onLine ? 'banner' : 'banner on';
-  $('lastSent').textContent = log.length ? 'Last sent ' + clockOf(log[0].t) + ', ' + log[0].ch : 'Nothing sent today yet.';
+  $('lastSent').textContent = log.length ? t('lastsent') + ' ' + clockOf(log[0].t) + ', ' + log[0].kind + ', ' + log[0].ch : t('nothing');
 }
-function clockOf(t) { var d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function clockOf(x) { var d = new Date(x); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
 function renderSetup() {
   $('squadName').value = settings.squad || '';
+  $('pickupPlace').value = settings.place || '';
+  $('uiEs').checked = settings.ui !== 'en';
+  $('uiEn').checked = settings.ui === 'en';
   $('langEs').checked = !!settings.es;
   $('langEn').checked = !!settings.en;
   $('regatta').checked = !!settings.regatta;
   $('lightTheme').checked = !!settings.light;
-  var h = '';
+  var h = '', roles = t('roles');
   for (var i = 0; i < contacts.length; i++) {
     var c = contacts[i];
     h += '<div class="contact"><span>' + esc(c.name) + '<small>' + esc(c.tel) + (c.email ? ' · ' + esc(c.email) : '') + '</small></span>' +
-         '<button class="tag ' + c.role + '" onclick="cycleRole(\'' + c.id + '\')">' + ROLE_LABEL[c.role] + '</button></div>';
+         '<button class="tag ' + c.role + '" onclick="cycleRole(\'' + c.id + '\')">' + roles[c.role] + '</button></div>';
   }
-  $('contactList').innerHTML = h || '<div class="note" style="margin-bottom:12px">No contacts yet.</div>';
+  $('contactList').innerHTML = h || '<div class="note" style="margin-bottom:12px">-</div>';
   var lh = '';
   for (var j = 0; j < log.length; j++) {
     var d = new Date(log[j].t);
     lh += d.getDate() + '/' + (d.getMonth() + 1) + ' ' + clockOf(log[j].t) + ' · ' + esc(log[j].kind) + ' · ' + esc(log[j].ch) +
-          (log[j].online ? '' : ' · no data, not confirmed') + '<br>';
+          (log[j].online ? '' : ' · offline') + '<br>';
   }
-  $('logList').innerHTML = lh || 'Nothing sent yet.';
+  $('logList').innerHTML = lh || '-';
 }
 function bindSetting(id, key, isText) {
   var el = $(id);
@@ -538,15 +728,21 @@ function bindSetting(id, key, isText) {
 }
 
 /* ---------- start ---------- */
-settings = load('settings', { squad: '', es: true, en: true, regatta: false, light: false, acks: {} });
+var DEFAULTS = { squad: '', place: '', ui: 'es', es: true, en: false, regatta: false, fleet: '', light: false,
+                 planEta: 45, resultsUrl: '', resultsDay: '', acks: {} };
+settings = load('settings', {});
+for (var k in DEFAULTS) if (settings[k] === undefined) settings[k] = DEFAULTS[k];
 contacts = load('contacts', []);
 log = load('log', []);
 if (settings.light) document.body.className = 'light';
 bindSetting('squadName', 'squad', true);
+bindSetting('pickupPlace', 'place', true);
 bindSetting('langEs', 'es');
 bindSetting('langEn', 'en');
 bindSetting('regatta', 'regatta');
 bindSetting('lightTheme', 'light');
+$('uiEs').addEventListener('change', function () { settings.ui = 'es'; save('settings', settings); applyUi(); renderSetup(); });
+$('uiEn').addEventListener('change', function () { settings.ui = 'en'; save('settings', settings); applyUi(); renderSetup(); });
 $('vcf').addEventListener('change', function () {
   var f = this.files && this.files[0];
   if (!f) return;
@@ -564,6 +760,7 @@ eb.addEventListener('mouseup', holdEnd, false);
 eb.addEventListener('mouseleave', holdEnd, false);
 window.addEventListener('online', renderHub);
 window.addEventListener('offline', renderHub);
+applyUi();
 show(contacts.length ? 'hub' : 'setup');
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
