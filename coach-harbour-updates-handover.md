@@ -15,7 +15,7 @@
 - JavaScript: ES5 only (`var`, `function`), no build step, no CDN
 - Persistence: localStorage only, prefix `chu1_` (`chu1_settings`, `chu1_contacts`, `chu1_log`); new settings keys are merged from `DEFAULTS` on load, so no prefix bump was needed in v2; no Firebase
 - UI labels: Spanish is the HTML text; English labels live in `UI.en` and are swapped in by `applyUi()`
-- Sending: Web Share API or `wa.me/?text=` for WhatsApp, `mailto:` with Bcc, `sms:` (iOS uses `sms:/open?addresses=`), `tel:`
+- Sending: Web Share API or `wa.me/?text=` for WhatsApp, `mailto:` with Bcc, `sms:` (iOS uses `sms:/open?addresses=`); no `tel:` since v4
 - Contacts: Contact Picker API where available (Android Chrome), else `.vcf` file import
 
 ## Last change
