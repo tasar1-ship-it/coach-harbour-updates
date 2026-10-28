@@ -1,13 +1,13 @@
 # Coach Harbour Updates — handover
 
-- Current version: service worker `coach-harbour-v6` (28 Oct 2026)
+- Current version: service worker `coach-harbour-v7` (28 Oct 2026)
 - Live URL: https://tasar1-ship-it.github.io/coach-harbour-updates/
 - Design document: https://claude.ai/artifact/CSR2g8MjFCXZCtFuXvvzyU
 
 ## File layout
 
 - `index.html` — the whole app (CSS and ES5 JavaScript inline): hub, preview, change of plan, prize-giving, race results, setup, example screens
-- `sw.js` — caches the app shell; bump `CACHE` on every deploy that changes a cached file
+- `sw.js` — caches the app shell; the page itself is network-first (cached copy only when offline), icons and manifest cache-first; still bump `CACHE` on every deploy
 - `manifest.json`, `icon-180.png`, `icon-512.png` — home-screen install
 
 ## Constants as they are
@@ -19,6 +19,8 @@
 - Contacts: Contact Picker API where available (Android Chrome), else `.vcf` file import
 
 ## Last change
+
+v7 (28 Oct 2026): service worker serves the page network-first, falling back to the cached copy offline. Before, it was cache-first, so a new version only showed on the second open (Ronald saw no colours after v6). Phones that still run the old worker may need one more reload, or removing and re-adding the home-screen icon once.
 
 v6 (28 Oct 2026): hub Prize-giving button purple (--purple #b07cff), Results teal (--teal #22c3c3), so they no longer look like Ready now (green).
 
