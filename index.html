@@ -92,6 +92,15 @@
   label.chk { display: flex; align-items: center; gap: 10px; font-size: 18px; min-height: 44px; }
   label.chk input { width: 26px; height: 26px; }
   .note { color: var(--quiet); font-size: 14px; }
+  .lang { width: auto; min-height: 40px; margin: 0; padding: 4px 16px; border-radius: 20px; font-size: 16px; }
+  .bar .right { display: flex; gap: 6px; }
+  .trans { display: none; color: var(--quiet); font-size: 15px; margin: -6px 0 14px; white-space: pre-wrap; }
+  .trans.on { display: block; }
+  .ex .time { font-size: 15px; font-weight: 700; color: var(--quiet); }
+  .ex .do { font-size: 17px; margin: 2px 0 8px; }
+  .ex.alt { border-color: var(--amber); }
+  .bubble { white-space: pre-wrap; background: rgba(47,191,113,0.16); border-left: 4px solid var(--green);
+            border-radius: 10px; padding: 10px 12px; font-size: 17px; }
 </style>
 </head>
 <body>
@@ -99,10 +108,18 @@
 <!-- HUB -->
 <section id="hub">
   <div class="bar">
-    <h1 id="squadTitle">Squad</h1>
-    <button class="link" onclick="show('setup')" data-t="setup">Ajustes</button>
+    <button class="lang" onclick="toggleLang()">English</button>
+    <span class="right">
+      <button class="link" onclick="show('example')" data-t="example">Ejemplo</button>
+      <button class="link" onclick="show('setup')" data-t="setup">Ajustes</button>
+    </span>
   </div>
+  <h1 id="squadTitle">Squad</h1>
   <div class="sub" id="hubSub"></div>
+  <div class="chips on">
+    <button class="chip all" id="dy-training" onclick="setDay(false)" data-t="training">Entreno</button>
+    <button class="chip all" id="dy-regatta" onclick="setDay(true)" data-t="regatta">Regata</button>
+  </div>
   <div class="chips" id="fleetRow">
     <button class="chip all" id="fl-all" onclick="setFleet('')" data-t="all">Todos</button>
     <button class="chip yel" id="fl-yellow" onclick="setFleet('yellow')" data-t="yellow">Amarillo</button>
@@ -124,7 +141,7 @@
     <button onclick="pick('heading')" data-t="b_heading">Vamos a puerto</button>
     <button class="green" onclick="pick('readynow')" data-t="b_readynow">Ya están listos</button>
   </div>
-  <div class="row">
+  <div class="row" id="regattaRow">
     <button onclick="show('prize')" data-t="b_prize">Entrega premios</button>
     <button class="green" onclick="show('results')" data-t="b_results">Resultados</button>
   </div>
@@ -137,6 +154,7 @@
 <section id="preview">
   <div class="bar"><h1 data-t="check">Revisar y enviar</h1><button class="link" onclick="back()" data-t="back">Volver</button></div>
   <div class="preview" id="previewText"></div>
+  <div class="trans" id="previewEn"></div>
   <button class="green" onclick="sendWhatsApp()" data-t="s_wa">Grupo de WhatsApp</button>
   <button onclick="sendEmail('parent')" data-t="s_mail">Email a padres (CCO)</button>
   <button onclick="sendSms('parent')" data-t="s_sms">SMS a padres</button>
@@ -153,7 +171,7 @@
     <button class="chip" id="pe-60" onclick="setPlanEta(60)">60 min</button>
   </div>
   <button class="amber" onclick="pick('early', settings.planEta)" data-t="p_early">Entramos antes (tiempo)</button>
-  <button class="amber" onclick="pick('abandoned', settings.planEta)" data-t="p_abandoned">Regata anulada hoy</button>
+  <button class="amber" id="p-abandoned" onclick="pick('abandoned', settings.planEta)" data-t="p_abandoned">Regata anulada hoy</button>
   <button onclick="pick('delayed')" data-t="p_delayed">Vamos con retraso</button>
   <button onclick="pick('cancelled')" data-t="p_cancelled">Entreno cancelado (aviso)</button>
 </section>
@@ -198,6 +216,7 @@
   <div class="step">
     <h3 data-t="e2">2  Avisar a padres y club</h3>
     <div class="preview" id="emgText"></div>
+    <div class="trans" id="emgEn"></div>
     <button class="red" onclick="emgSend('sms')" data-t="e_sms">SMS a todos</button>
     <button class="small" onclick="emgSend('wa')" data-t="s_wa">Grupo de WhatsApp</button>
   </div>
@@ -215,8 +234,10 @@
 
 <!-- SETUP -->
 <section id="setup">
-  <div class="bar"><h1 data-t="setup">Ajustes</h1><button class="link" onclick="show('hub')" data-t="done">Listo</button></div>
+  <div class="bar"><button class="lang" onclick="toggleLang()">English</button><button class="link" onclick="show('hub')" data-t="done">Listo</button></div>
+  <h1 data-t="setup">Ajustes</h1>
   <div class="sub" data-t="onland">Hazlo una vez, en tierra.</div>
+  <button class="blue small" onclick="show('example')" data-t="ex_open">¿Cómo funciona? Ver un ejemplo</button>
   <input type="text" id="squadName" placeholder="Grupo, p. ej. Optimist Desarrollo 1">
   <div class="gap"></div>
   <div class="sub" style="margin:0 0 6px" data-t="u_lang">Idioma de la app</div>
@@ -231,7 +252,6 @@
   </div>
 
   <h2 data-t="today">Hoy</h2>
-  <label class="chk"><input type="checkbox" id="regatta"> <span data-t="regday">Día de regata (grupos por colores)</span></label>
   <input type="text" id="pickupPlace" placeholder="Lugar de recogida, p. ej. el CNA">
   <div class="gap"></div>
   <label class="chk"><input type="checkbox" id="lightTheme"> <span data-t="light">Tema claro (días nublados)</span></label>
@@ -251,6 +271,20 @@
 
   <h2 data-t="logh">Registro (últimos 7 días)</h2>
   <div id="logList" class="note"></div>
+</section>
+
+<!-- EXAMPLE -->
+<section id="example">
+  <div class="bar"><button class="lang" onclick="toggleLang()">English</button><button class="link" onclick="back()" data-t="back">Volver</button></div>
+  <h1 data-t="ex_h">Cómo funciona: un día de ejemplo</h1>
+  <div class="sub" data-t="ex_sub">Cada paso es un botón de la app. El recuadro verde es lo que leen los padres en el grupo.</div>
+  <div class="chips on">
+    <button class="chip all" id="ex-training" onclick="renderExample('training')" data-t="training">Entreno</button>
+    <button class="chip all" id="ex-regatta" onclick="renderExample('regatta')" data-t="regatta">Regata</button>
+  </div>
+  <div id="exList"></div>
+  <button class="green" onclick="tryExample()" data-t="ex_try">Probar con datos de ejemplo</button>
+  <div class="note" data-t="ex_note">Rellena el grupo, el lugar y contactos de prueba solo donde aún están vacíos. Nada se envía hasta que pulses enviar en WhatsApp.</div>
 </section>
 
 <script>
@@ -327,9 +361,15 @@ var UI = {
     pin: 'Send a test message to pin the group', pinnote: "Pick the parents' group once. WhatsApp then shows it at the top of its share list.",
     logh: 'Send log (last 7 days)', training: 'Training', regatta: 'Regatta', parents: 'parents',
     lastsent: 'Last sent', nothing: 'Nothing sent today yet.',
-    roles: { parent: 'Parent', club: 'Club', emergency: 'Emergency', off: 'Off' }
+    roles: { parent: 'Parent', club: 'Club', emergency: 'Emergency', off: 'Off' },
+    example: 'Example', ex_open: 'How does it work? See an example', ex_h: 'How it works: an example day',
+    ex_sub: 'Each step is one button in the app. The green box is what parents read in the group.',
+    ex_try: 'Try it with sample data',
+    ex_note: 'Fills in the squad, the place and test contacts only where they are still empty. Nothing is sent until you tap send in WhatsApp.',
+    inEnglish: 'In English: ', ex_before: 'Before (on land)'
   },
   es: {
+    inEnglish: '', ex_before: 'Antes (en tierra)',
     ack: 'Confirmados', training: 'Entreno', regatta: 'Regata', parents: 'padres',
     lastsent: 'Último envío', nothing: 'Hoy no se ha enviado nada.',
     roles: { parent: 'Padre/madre', club: 'Club', emergency: 'Emergencia', off: 'Fuera' }
@@ -349,8 +389,10 @@ function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 function pad(n) { return n < 10 ? '0' + n : '' + n; }
-function clock(addMin) {
-  var d = new Date(new Date().getTime() + (addMin || 0) * 60000);
+function clock(addMin, at) {
+  var d = new Date();
+  if (at) d.setHours(+at.split(':')[0], +at.split(':')[1], 0, 0);
+  d = new Date(d.getTime() + (addMin || 0) * 60000);
   /* round to the next 5 minutes, as coaches do ("sobre las 16:15") */
   var m = Math.ceil(d.getMinutes() / 5) * 5;
   if (m === 60) { d.setHours(d.getHours() + 1); m = 0; }
@@ -375,10 +417,23 @@ function applyUi() {
     var v = settings.ui === 'en' ? UI.en[k] : HTML_TEXT[k];
     if (v !== undefined) els[i].textContent = v;
   }
+  var lb = document.querySelectorAll('.lang');
+  for (var j = 0; j < lb.length; j++) lb[j].textContent = settings.ui === 'en' ? 'Español' : 'English';
   document.documentElement.lang = settings.ui;
 }
+/* Same pill as the sailing sign-up page: it names the other language and switches the screens, not the messages. */
+function toggleLang() {
+  settings.ui = settings.ui === 'en' ? 'es' : 'en';
+  save('settings', settings);
+  applyUi();
+  if (onScreen === 'preview') setPreview(current_kind, current_opts);
+  else show(onScreen);
+}
 
+var onScreen = 'hub';
 function show(id) {
+  if (id === 'example' && onScreen !== 'example') exBack = onScreen;
+  onScreen = id;
   var s = document.getElementsByTagName('section');
   for (var i = 0; i < s.length; i++) s[i].className = '';
   $(id).className = 'on';
@@ -388,19 +443,20 @@ function show(id) {
   if (id === 'plan') setPlanEta(settings.planEta);
   if (id === 'prize' && !$('prizePlace').value) $('prizePlace').value = settings.place || '';
   if (id === 'results') $('resultsUrl').value = todayUrl();
+  if (id === 'example') renderExample(exDay);
   window.scrollTo(0, 0);
 }
-function back() { show(prevScreen); }
+function back() { show(onScreen === 'example' ? exBack : prevScreen); }
 
 /* ---------- messages ---------- */
 function build(kind, opts) {
   opts = opts || {};
-  var out = [], L = langs();
+  var out = [], L = opts.langs || langs();
   for (var i = 0; i < L.length; i++) {
     var T = TEXT[L[i]], s = T[kind];
-    var place = settings.place ? T.at + settings.place : '';
+    var place = settings.place ? T.at + (L[i] === 'en' ? settings.place.replace(/^(el|la|los|las) /i, 'the ') : settings.place) : '';
     if (kind === 'results' && opts.race) s = T.resultsRace.replace('{r}', opts.race);
-    s = s.replace('{t}', clock(opts.min || 0)).replace('{p}', place)
+    s = s.replace('{t}', clock(opts.min || 0, opts.at)).replace('{p}', place)
          .replace('{pt}', opts.prizeTime || '').replace('{pp}', opts.prizePlace ? T.at + opts.prizePlace : '');
     if (settings.regatta && settings.fleet && kind !== 'emergency' && kind !== 'allsafe' && kind !== 'pin') {
       s = T.fleet[settings.fleet] + ': ' + s;
@@ -413,23 +469,43 @@ function build(kind, opts) {
 }
 function withSquad(text) { return settings.squad ? settings.squad + '\n' + text : text; }
 
-function pick(kind, min) {
-  current = build(kind, { min: min });
+/* When the screens are in English but the messages go out in Spanish only, the English version is shown below, not sent. */
+function translation(kind, opts) {
+  if (settings.ui !== 'en' || settings.en) return '';
+  opts.langs = ['en'];
+  var s = build(kind, opts);
+  delete opts.langs;
+  return t('inEnglish') + s;
+}
+function showTrans(id, text) {
+  $(id).textContent = text;
+  $(id).className = text ? 'trans on' : 'trans';
+}
+var current_opts = {};
+function setPreview(kind, opts) {
+  current_opts = opts || {};
+  current = build(kind, current_opts);
   current_kind = kind;
-  prevScreen = (kind === 'early' || kind === 'abandoned' || kind === 'delayed' || kind === 'cancelled') ? 'plan'
-             : (kind === 'prizetbd' ? 'prize' : 'hub');
   $('previewText').textContent = current;
+  showTrans('previewEn', translation(kind, current_opts));
   show('preview');
 }
+function pick(kind, min) {
+  prevScreen = (kind === 'early' || kind === 'abandoned' || kind === 'delayed' || kind === 'cancelled') ? 'plan'
+             : (kind === 'prizetbd' ? 'prize' : 'hub');
+  setPreview(kind, { min: min });
+}
 function pickPrize() {
-  current = build('prize', { prizeTime: $('prizeTime').value, prizePlace: $('prizePlace').value });
-  current_kind = 'prize';
   prevScreen = 'prize';
-  $('previewText').textContent = current;
-  show('preview');
+  setPreview('prize', { prizeTime: $('prizeTime').value, prizePlace: $('prizePlace').value });
 }
 function setFleet(f) {
   settings.fleet = f;
+  save('settings', settings);
+  renderHub();
+}
+function setDay(regatta) {
+  settings.regatta = regatta;
   save('settings', settings);
   renderHub();
 }
@@ -464,20 +540,14 @@ function pickResultsLink() {
   settings.resultsUrl = url;
   settings.resultsDay = dayKey();
   save('settings', settings);
-  current = build('results', { body: url });
-  current_kind = 'results';
   prevScreen = 'results';
-  $('previewText').textContent = current;
-  show('preview');
+  setPreview('results', { body: url });
 }
 function pickResults() {
   var body = cleanResults($('resultsText').value);
   if (!body) { alert(settings.ui === 'en' ? 'Paste or type the results first.' : 'Pega o escribe primero los resultados.'); return; }
-  current = build('results', { race: $('raceNo').value, body: body });
-  current_kind = 'results';
   prevScreen = 'results';
-  $('previewText').textContent = current;
-  show('preview');
+  setPreview('results', { race: $('raceNo').value, body: body });
 }
 
 /* ---------- channels ---------- */
@@ -554,6 +624,7 @@ function renderEmergency() {
   current = build('emergency');
   current_kind = 'emergency';
   $('emgText').textContent = current;
+  showTrans('emgEn', translation('emergency', {}));
   var list = role('emergency').concat(role('club')), h = '';
   for (var i = 0; i < list.length; i++) {
     h += '<a class="btn small" href="tel:' + esc(list[i].tel) + '">' + (settings.ui === 'en' ? 'Call ' : 'Llamar a ') + esc(list[i].name) + '</a>';
@@ -591,11 +662,8 @@ function emgSend(ch) {
   }
 }
 function emgClose() {
-  current = build('allsafe');
-  current_kind = 'allsafe';
   prevScreen = 'emergency';
-  $('previewText').textContent = current;
-  show('preview');
+  setPreview('allsafe', {});
 }
 
 /* ---------- contacts ---------- */
@@ -681,13 +749,73 @@ function pinTest() {
   shareWhatsApp(build('pin'));
 }
 
+/* ---------- example day ---------- */
+/* Fixed clock times so the example reads the same at any hour; the messages come from the real presets. */
+var EXAMPLES = {
+  training: { place: 'el CNA', regatta: false, fleet: '', steps: [
+    { es: 'Pones el lugar de recogida (el CNA) y eliges «Entreno».', en: 'Set the pickup place (el CNA) and choose "Training".' },
+    { at: '10:30', kind: 'water', es: 'Salen al agua: pulsa «Al agua».', en: 'They launch: tap "On the water".' },
+    { at: '12:20', kind: 'early', min: 30, alt: true,
+      es: 'Solo si sube el viento: «Cambio de plan», 30 min, «Entramos antes».', en: 'Only if the wind gets up: "Change of plan", 30 min, "Coming in early".' },
+    { at: '13:15', kind: 'ready', min: 45, es: 'Último ejercicio terminado: pulsa «45 min».', en: 'Last drill done: tap "45 min".' },
+    { at: '14:00', kind: 'readynow', es: 'Barcos recogidos, niños duchados: pulsa «Ya están listos».', en: 'Boats put away, kids showered: tap "Ready now".' }
+  ] },
+  regatta: { place: 'el RCNP', regatta: true, fleet: 'yellow', steps: [
+    { es: 'Pones el lugar (el RCNP), eliges «Regata» y el grupo «Amarillo». Cada mensaje empieza con el grupo.', en: 'Set the place (el RCNP), choose "Regatta" and the "Yellow" fleet. Every message starts with the fleet.' },
+    { at: '10:45', kind: 'water', es: 'Sale el grupo: pulsa «Al agua».', en: 'The fleet launches: tap "On the water".' },
+    { at: '14:30', kind: 'lastrace', es: 'Se da la salida de la última prueba: pulsa «Última prueba».', en: 'Last race starts: tap "Last race".' },
+    { at: '15:10', kind: 'ready', min: 45, es: 'Han cruzado la llegada: pulsa «45 min».', en: 'They have finished: tap "45 min".' },
+    { at: '16:20', kind: 'prize', pt: '17:30', pp: 'el RCNP', es: 'El club anuncia la entrega: «Entrega premios», 17:30.', en: 'The club announces prize-giving: "Prize-giving", 17:30.' },
+    { at: '17:00', kind: 'results', body: 'https://example.com/resultados', es: 'Sale la clasificación: copia el enlace, «Resultados», «Enviar enlace».', en: 'Results are out: copy the link, "Results", "Send link".' }
+  ] }
+};
+var exDay = 'training', exBack = 'hub';
+function exampleMsg(day, st, lang) {
+  var keep = { place: settings.place, regatta: settings.regatta, fleet: settings.fleet };
+  settings.place = day.place; settings.regatta = day.regatta; settings.fleet = day.fleet;
+  var s = build(st.kind, { at: st.at, min: st.min, prizeTime: st.pt, prizePlace: st.pp, body: st.body, langs: [lang] });
+  settings.place = keep.place; settings.regatta = keep.regatta; settings.fleet = keep.fleet;
+  return s;
+}
+function renderExample(which) {
+  exDay = which;
+  $('ex-training').className = 'chip all' + (which === 'training' ? ' sel' : '');
+  $('ex-regatta').className = 'chip all' + (which === 'regatta' ? ' sel' : '');
+  var day = EXAMPLES[which], h = '', en = settings.ui === 'en';
+  for (var i = 0; i < day.steps.length; i++) {
+    var st = day.steps[i];
+    h += '<div class="step ex' + (st.alt ? ' alt' : '') + '"><div class="time">' + (st.at || t('ex_before')) + '</div>' +
+         '<div class="do">' + esc(en ? st.en : st.es) + '</div>';
+    if (st.kind) {
+      h += '<div class="bubble">' + esc(exampleMsg(day, st, 'es')) + '</div>';
+      if (en) h += '<div class="note" style="margin-top:6px">' + esc(t('inEnglish') + exampleMsg(day, st, 'en')) + '</div>';
+    }
+    h += '</div>';
+  }
+  $('exList').innerHTML = h;
+}
+function tryExample() {
+  var day = EXAMPLES[exDay];
+  if (!settings.squad) settings.squad = 'Optimist';
+  if (!settings.place) settings.place = day.place;
+  settings.regatta = day.regatta;
+  if (day.regatta && !settings.fleet) settings.fleet = day.fleet;
+  save('settings', settings);
+  if (!contacts.length) loadSample();
+  show('hub');
+}
+
 /* ---------- render ---------- */
 function renderHub() {
   $('squadTitle').textContent = settings.squad || (settings.ui === 'en' ? 'Set up your squad' : 'Configura tu grupo');
   var p = role('parent').length;
-  $('hubSub').textContent = (settings.regatta ? t('regatta') : t('training')) + ', ' + (settings.place || '-') +
-    ', ' + p + ' ' + t('parents') + ', ' + langs().join(' + ').toUpperCase();
+  $('hubSub').textContent = (settings.place || '-') + ', ' + p + ' ' + t('parents') + ', ' + langs().join(' + ').toUpperCase();
+  $('dy-training').className = 'chip all' + (settings.regatta ? '' : ' sel');
+  $('dy-regatta').className = 'chip all' + (settings.regatta ? ' sel' : '');
   $('fleetRow').className = settings.regatta ? 'chips on' : 'chips';
+  /* Prize-giving, results and "racing abandoned" only make sense on regatta days. */
+  $('regattaRow').style.display = settings.regatta ? '' : 'none';
+  $('p-abandoned').style.display = settings.regatta ? '' : 'none';
   var f = ['', 'yellow', 'blue', 'red'], ids = ['fl-all', 'fl-yellow', 'fl-blue', 'fl-red'], cls = ['all', 'yel', 'blu', 'rd'];
   for (var i = 0; i < f.length; i++) $(ids[i]).className = 'chip ' + cls[i] + ((settings.fleet || '') === f[i] ? ' sel' : '');
   $('offline').className = navigator.onLine ? 'banner' : 'banner on';
@@ -701,7 +829,6 @@ function renderSetup() {
   $('uiEn').checked = settings.ui === 'en';
   $('langEs').checked = !!settings.es;
   $('langEn').checked = !!settings.en;
-  $('regatta').checked = !!settings.regatta;
   $('lightTheme').checked = !!settings.light;
   var h = '', roles = t('roles');
   for (var i = 0; i < contacts.length; i++) {
@@ -739,7 +866,6 @@ bindSetting('squadName', 'squad', true);
 bindSetting('pickupPlace', 'place', true);
 bindSetting('langEs', 'es');
 bindSetting('langEn', 'en');
-bindSetting('regatta', 'regatta');
 bindSetting('lightTheme', 'light');
 $('uiEs').addEventListener('change', function () { settings.ui = 'es'; save('settings', settings); applyUi(); renderSetup(); });
 $('uiEn').addEventListener('change', function () { settings.ui = 'en'; save('settings', settings); applyUi(); renderSetup(); });

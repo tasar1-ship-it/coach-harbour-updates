@@ -1,12 +1,12 @@
 # Coach Harbour Updates — handover
 
-- Current version: service worker `coach-harbour-v2` (28 Oct 2026)
+- Current version: service worker `coach-harbour-v3` (28 Oct 2026)
 - Live URL: https://tasar1-ship-it.github.io/coach-harbour-updates/
 - Design document: https://claude.ai/artifact/CSR2g8MjFCXZCtFuXvvzyU
 
 ## File layout
 
-- `index.html` — the whole app (CSS and ES5 JavaScript inline): hub, preview, race results, emergency, setup screens
+- `index.html` — the whole app (CSS and ES5 JavaScript inline): hub, preview, change of plan, prize-giving, race results, emergency, setup, example screens
 - `sw.js` — caches the app shell; bump `CACHE` on every deploy that changes a cached file
 - `manifest.json`, `icon-180.png`, `icon-512.png` — home-screen install
 
@@ -19,6 +19,8 @@
 - Contacts: Contact Picker API where available (Android Chrome), else `.vcf` file import
 
 ## Last change
+
+v3 (28 Oct 2026): English/Español pill top left (same idea as the sailing sign-up page; switches the screens only, and with Spanish-only messages the preview shows an "In English:" line that is not sent). Training/Regatta switch on the hub replaces the Setup checkbox; on training days Prize-giving, Results and "Racing abandoned" are hidden. New Example screen (hub "Example", Setup "See an example"): a training day and a regatta day at fixed clock times, built from the real presets, plus "Try it with sample data". English messages turn a leading "el/la" in the pickup place into "the".
 
 v2 (28 Oct 2026), from reading the squad's parent-group chat export: hub rebuilt around the coach's real sequence (on the water, last race, heading in, ready to collect in 30/45/60, ready now), colour-fleet prefix on regatta days, pickup place per day, prize-giving screen, results link kept per day, change-of-plan screen (early finish, abandoned, late, cancelled), Spanish UI and Spanish-only messages by default, squad name only on SMS/email.
 
