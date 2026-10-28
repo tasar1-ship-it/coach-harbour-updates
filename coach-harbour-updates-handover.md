@@ -1,6 +1,6 @@
 # Coach Harbour Updates — handover
 
-- Current version: service worker `coach-harbour-v4` (28 Oct 2026)
+- Current version: service worker `coach-harbour-v5` (28 Oct 2026)
 - Live URL: https://tasar1-ship-it.github.io/coach-harbour-updates/
 - Design document: https://claude.ai/artifact/CSR2g8MjFCXZCtFuXvvzyU
 
@@ -19,6 +19,8 @@
 - Contacts: Contact Picker API where available (Android Chrome), else `.vcf` file import
 
 ## Last change
+
+v5 (28 Oct 2026): fleet buttons always show their colour (yellow, blue, red border and tint); the chosen fleet is filled solid.
 
 v4 (28 Oct 2026): emergency feature removed, because emergencies are handled individually by the coaches. Gone: the hold-to-open EMERGENCY button, the emergency screen (112/VHF step, SMS to all, call list, acknowledgement tick-list, all-safe message), the emergency and all-safe message texts, and the Club and Emergency contact tags (tags are now Parent or Off; contacts saved with an old tag load as Off). `settings.acks` may still sit in old saved settings; nothing reads it.
 

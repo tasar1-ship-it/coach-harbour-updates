@@ -58,9 +58,13 @@
   .chip { flex: 1; min-height: 48px; margin: 0; padding: 4px; font-size: 15px; border-radius: 12px; }
   .chip.sel { border-width: 3px; }
   .chip.all.sel { border-color: var(--ink); }
-  .chip.yel.sel { border-color: var(--yellow); background: rgba(255,212,0,0.2); }
-  .chip.blu.sel { border-color: var(--blue); background: rgba(61,139,255,0.2); }
-  .chip.rd.sel { border-color: var(--red); background: rgba(255,77,77,0.2); }
+  /* Each fleet button wears its own colour; the chosen fleet is filled solid. */
+  .chip.yel { border-color: var(--yellow); background: rgba(255,212,0,0.16); }
+  .chip.blu { border-color: var(--blue); background: rgba(61,139,255,0.2); }
+  .chip.rd { border-color: var(--red); background: rgba(255,77,77,0.2); }
+  .chip.yel.sel { background: var(--yellow); color: #0b1220; }
+  .chip.blu.sel { background: var(--blue); color: #fff; }
+  .chip.rd.sel { background: var(--red); color: #fff; }
   textarea, input[type=text], input[type=url], input[type=time] {
     width: 100%; font: inherit; font-size: 18px; color: var(--ink); background: var(--panel);
     border: 2px solid var(--line); border-radius: 12px; padding: 12px; -webkit-user-select: text; user-select: text;

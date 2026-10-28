@@ -1,4 +1,4 @@
-var CACHE = 'coach-harbour-v4';
+var CACHE = 'coach-harbour-v5';
 var SHELL = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-512.png'];
 
 self.addEventListener('install', function (e) {
