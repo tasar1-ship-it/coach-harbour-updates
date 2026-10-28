@@ -13,7 +13,7 @@
 <style>
   :root {
     --bg: #0b1220; --panel: #151f33; --line: #2a3a58; --ink: #ffffff; --quiet: #b7c3d9;
-    --blue: #3d8bff; --green: #2fbf71; --red: #ff4d4d; --amber: #ffb020; --yellow: #ffd400;
+    --blue: #3d8bff; --green: #2fbf71; --red: #ff4d4d; --amber: #ffb020; --yellow: #ffd400; --purple: #b07cff; --teal: #22c3c3;
   }
   body.light { --bg: #f4f6fa; --panel: #ffffff; --line: #c9d2e3; --ink: #0b1220; --quiet: #4a5876; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -42,6 +42,8 @@
   .green { border-color: var(--green); background: rgba(47,191,113,0.18); }
   .red { border-color: var(--red); background: rgba(255,77,77,0.2); }
   .amber { border-color: var(--amber); background: rgba(255,176,32,0.16); }
+  .purple { border-color: var(--purple); background: rgba(176,124,255,0.18); }
+  .teal { border-color: var(--teal); background: rgba(34,195,195,0.16); }
   .small { min-height: 52px; font-size: 17px; }
   .eta { min-height: 88px; }
   .eta b { display: block; font-size: 34px; line-height: 1.1; }
@@ -137,8 +139,8 @@
     <button class="green" onclick="pick('readynow')" data-t="b_readynow">Ya están listos</button>
   </div>
   <div class="row" id="regattaRow">
-    <button onclick="show('prize')" data-t="b_prize">Entrega premios</button>
-    <button class="green" onclick="show('results')" data-t="b_results">Resultados</button>
+    <button class="purple" onclick="show('prize')" data-t="b_prize">Entrega premios</button>
+    <button class="teal" onclick="show('results')" data-t="b_results">Resultados</button>
   </div>
   <button class="amber" onclick="show('plan')" data-t="b_plan">Cambio de plan</button>
   <div class="last" id="lastSent"></div>

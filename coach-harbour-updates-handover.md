@@ -1,6 +1,6 @@
 # Coach Harbour Updates — handover
 
-- Current version: service worker `coach-harbour-v5` (28 Oct 2026)
+- Current version: service worker `coach-harbour-v6` (28 Oct 2026)
 - Live URL: https://tasar1-ship-it.github.io/coach-harbour-updates/
 - Design document: https://claude.ai/artifact/CSR2g8MjFCXZCtFuXvvzyU
 
@@ -19,6 +19,8 @@
 - Contacts: Contact Picker API where available (Android Chrome), else `.vcf` file import
 
 ## Last change
+
+v6 (28 Oct 2026): hub Prize-giving button purple (--purple #b07cff), Results teal (--teal #22c3c3), so they no longer look like Ready now (green).
 
 v5 (28 Oct 2026): fleet buttons always show their colour (yellow, blue, red border and tint); the chosen fleet is filled solid.
 
