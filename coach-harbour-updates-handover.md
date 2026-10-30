@@ -1,6 +1,6 @@
 # Coach Harbour Updates: handover
 
-The parent communication app for Optimist sailing coaches. Written 30 October 2026 so that a new session can pick up from this file alone.
+The parent communication app for Optimist sailing coaches. Updated 30 October 2026 so that a new session can pick up from this file alone.
 
 This repo is public. Never add children's names, parents' numbers or the sign-up page's group key here.
 
@@ -16,7 +16,7 @@ This repo is public. Never add children's names, parents' numbers or the sign-up
 - Live app: https://tasar1-ship-it.github.io/coach-harbour-updates/
 - Code: https://github.com/tasar1-ship-it/coach-harbour-updates (branch `main`, GitHub Pages)
 - Design document (Claude Doc, private): https://claude.ai/artifact/CSR2g8MjFCXZCtFuXvvzyU
-- Design document PDF: `~/Downloads/Coach Harbour Updates - Design Document_v2.pdf` (use v2; v1 still describes the emergency screen)
+- Design document PDF: `~/Downloads/Coach Harbour Updates - Design Document_v3.pdf` (use v3; v2 describes features the app does not have, and v1 also describes the emergency screen)
 - Overview card: "Lukas' coaches" section of https://claude.ai/artifact/CMsziPsrVbyovn81KqmZNP
 
 ## What it does
@@ -102,18 +102,16 @@ Not tested on a real phone:
 - Contact Picker and `.vcf` import
 - network-first updates and the offline fallback in the service worker
 
-## Where the design document and the app differ
+## Features the app does not have
 
-Found by comparing the document with the code on 30 October 2026. The document describes these, but the app does not do them:
+The design document was corrected on 30 October 2026 to describe what the app really does. These were in earlier versions of the document and were never built. Build one only if Ronald asks:
 
-- Editing a message before sending: the preview is read-only.
-- A send log entry marked "Not confirmed" with a reminder on the next open. The log only records whether the phone was online.
-- An optional app PIN, per-contact language, and spoken button labels for screen readers.
-- A sail day that resets at midnight. Only the results link is per-day; pickup place, fleet and Training/Regatta stay until changed.
-- Buttons at 72 px and 22 px text. The real values are 68 px and 21 px.
-- The document says green means results, and its wireframe and the PDF show the older colours. Results is now pink and Prize-giving purple.
+- editing a message in the app before sending (the coach can still change the words in WhatsApp, Mail or Messages)
+- a "Not confirmed" mark and reminder for unsent messages (the send log only records whether the phone was online)
+- an app PIN, a language per contact, and special spoken labels for screen readers
+- a sail day that resets at midnight (only the results link is per-day)
 
-Either build these or correct the document; Ronald has not decided which. The document's version note also stops at version 4.
+When the app changes, update the design document too, then rebuild the PDF. The PDF is printed with headless Chrome from a separate print layout, because the document's own PDF export splits tables and drawings across pages. That layout lived in the session scratch folder and is not in this repo.
 
 ## Open questions
 
