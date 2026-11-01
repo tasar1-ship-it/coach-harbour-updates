@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Harbour">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Coach Harbour Updates</title>
+<style>
+  :root {
+    --bg: #0b1220; --panel: #151f33; --line: #2a3a58; --ink: #ffffff; --quiet: #b7c3d9;
+    --blue: #3d8bff; --green: #2fbf71; --red: #ff4d4d; --amber: #ffb020; --yellow: #ffd400; --purple: #b07cff; --pink: #ff5fa8;
+  }
+  body.light { --bg: #f4f6fa; --panel: #ffffff; --line: #c9d2e3; --ink: #0b1220; --quiet: #4a5876; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font: 18px/1.35 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    padding: calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 14px)
+             calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 14px);
+    -webkit-user-select: none; user-select: none;
+  }
+  section { display: none; max-width: 520px; margin: 0 auto; }
+  section.on { display: block; }
+  h1 { font-size: 24px; margin: 4px 0 2px; }
+  h2 { font-size: 20px; margin: 18px 0 8px; }
+  .sub { color: var(--quiet); font-size: 15px; margin-bottom: 10px; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  button, .btn {
+    display: block; width: 100%; min-height: 68px; margin: 0 0 10px; padding: 10px 12px;
+    border-radius: 14px; border: 2px solid var(--line); background: var(--panel); color: var(--ink);
+    font: inherit; font-size: 21px; font-weight: 700; text-align: center; text-decoration: none;
+    cursor: pointer;
+  }
+  button:active, .btn:active { transform: scale(0.98); }
+  .blue { border-color: var(--blue); background: rgba(61,139,255,0.18); }
+  .green { border-color: var(--green); background: rgba(47,191,113,0.18); }
+  .red { border-color: var(--red); background: rgba(255,77,77,0.2); }
+  .amber { border-color: var(--amber); background: rgba(255,176,32,0.16); }
+  .purple { border-color: var(--purple); background: rgba(176,124,255,0.18); }
+  .pink { border-color: var(--pink); background: rgba(255,95,168,0.18); }
+  .small { min-height: 52px; font-size: 17px; }
+  .eta { min-height: 88px; }
+  .eta b { display: block; font-size: 34px; line-height: 1.1; }
+  .eta span { font-size: 15px; font-weight: 600; }
+  .bar { display: flex; justify-content: space-between; align-items: center; }
+  .link { background: none; border: none; min-height: 44px; width: auto; margin: 0; padding: 0 4px;
+          color: var(--blue); font-size: 17px; font-weight: 600; }
+  .banner { display: none; padding: 10px 12px; border-radius: 10px; margin-bottom: 10px;
+            background: rgba(255,176,32,0.2); border: 2px solid var(--amber); font-size: 16px; font-weight: 600; }
+  .banner.on { display: block; }
+  .last { color: var(--quiet); font-size: 15px; margin-top: 4px; }
+  .chips { display: none; gap: 8px; margin-bottom: 10px; }
+  .chips.on { display: flex; }
+  .chip { flex: 1; min-height: 48px; margin: 0; padding: 4px; font-size: 15px; border-radius: 12px; }
+  .chip.sel { border-width: 3px; }
+  .chip.all.sel { border-color: var(--ink); }
+  /* Each fleet button wears its own colour; the chosen fleet is filled solid. */
+  .chip.yel { border-color: var(--yellow); background: rgba(255,212,0,0.16); }
+  .chip.blu { border-color: var(--blue); background: rgba(61,139,255,0.2); }
+  .chip.rd { border-color: var(--red); background: rgba(255,77,77,0.2); }
+  .chip.yel.sel { background: var(--yellow); color: #0b1220; }
+  .chip.blu.sel { background: var(--blue); color: #fff; }
+  .chip.rd.sel { background: var(--red); color: #fff; }
+  textarea, input[type=text], input[type=url], input[type=time] {
+    width: 100%; font: inherit; font-size: 18px; color: var(--ink); background: var(--panel);
+    border: 2px solid var(--line); border-radius: 12px; padding: 12px; -webkit-user-select: text; user-select: text;
+  }
+  input[type=time] { font-size: 28px; font-weight: 700; text-align: center; }
+  textarea { min-height: 150px; }
+  .gap { height: 10px; }
+  .preview { white-space: pre-wrap; background: var(--panel); border: 2px solid var(--line);
+             border-radius: 12px; padding: 14px; font-size: 18px; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
+  .contact { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+             background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+             padding: 10px 12px; margin-bottom: 8px; font-size: 17px; }
+  .contact small { display: block; color: var(--quiet); font-size: 13px; }
+  .tag { min-height: 44px; width: auto; margin: 0; padding: 6px 10px; font-size: 14px; border-radius: 10px; }
+  .tag.parent { border-color: var(--blue); }
+  .tag.off { opacity: 0.5; }
+  .step { border: 2px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 12px; background: var(--panel); }
+  .step.red { border-color: var(--red); }
+  .step h3 { margin: 0 0 8px; font-size: 20px; }
+  label.chk { display: flex; align-items: center; gap: 10px; font-size: 18px; min-height: 44px; }
+  label.chk input { width: 26px; height: 26px; }
+  .note { color: var(--quiet); font-size: 14px; }
+  .lang { width: auto; min-height: 40px; margin: 0; padding: 4px 16px; border-radius: 20px; font-size: 16px; }
+  .bar .right { display: flex; gap: 6px; }
+  .trans { display: none; color: var(--quiet); font-size: 15px; margin: -6px 0 14px; white-space: pre-wrap; }
+  .trans.on { display: block; }
+  .ex .time { font-size: 15px; font-weight: 700; color: var(--quiet); }
+  .ex .do { font-size: 17px; margin: 2px 0 8px; }
+  .ex.alt { border-color: var(--amber); }
+  .bubble { white-space: pre-wrap; background: rgba(47,191,113,0.16); border-left: 4px solid var(--green);
+            border-radius: 10px; padding: 10px 12px; font-size: 17px; }
+</style>
+</head>
+<body>
+
+<!-- HUB -->
+<section id="hub">
+  <div class="bar">
+    <button class="lang" onclick="toggleLang()">English</button>
+    <span class="right">
+      <button class="link" onclick="show('example')" data-t="example">Ejemplo</button>
+      <button class="link" onclick="show('setup')" data-t="setup">Ajustes</button>
+    </span>
+  </div>
+  <h1 id="squadTitle">Squad</h1>
+  <div class="sub" id="hubSub"></div>
+  <div class="chips on">
+    <button class="chip all" id="dy-training" onclick="setDay(false)" data-t="training">Entreno</button>
+    <button class="chip all" id="dy-regatta" onclick="setDay(true)" data-t="regatta">Regata</button>
+  </div>
+  <div class="chips" id="fleetRow">
+    <button class="chip all" id="fl-all" onclick="setFleet('')" data-t="all">Todos</button>
+    <button class="chip yel" id="fl-yellow" onclick="setFleet('yellow')" data-t="yellow">Amarillo</button>
+    <button class="chip blu" id="fl-blue" onclick="setFleet('blue')" data-t="blue">Azul</button>
+    <button class="chip rd" id="fl-red" onclick="setFleet('red')" data-t="red">Rojo</button>
+  </div>
+  <div class="banner" id="offline" data-t="offline">Sin datos: WhatsApp esperará. Usa SMS si es urgente.</div>
+  <div class="row">
+    <button class="blue" onclick="pick('water')" data-t="b_water">Al agua</button>
+    <button class="blue" onclick="pick('lastrace')" data-t="b_lastrace">Última prueba</button>
+  </div>
+  <div class="sub" style="margin:0 0 6px" data-t="readyin">Listos para recoger en</div>
+  <div class="row">
+    <button class="blue eta" onclick="pick('ready',30)"><b>30</b><span>min</span></button>
+    <button class="blue eta" onclick="pick('ready',45)"><b>45</b><span>min</span></button>
+    <button class="blue eta" onclick="pick('ready',60)"><b>60</b><span>min</span></button>
+  </div>
+  <div class="row">
+    <button onclick="pick('heading')" data-t="b_heading">Vamos a puerto</button>
+    <button class="green" onclick="pick('readynow')" data-t="b_readynow">Ya están listos</button>
+  </div>
+  <div class="row" id="regattaRow">
+    <button class="purple" onclick="show('prize')" data-t="b_prize">Entrega premios</button>
+    <button class="pink" onclick="show('results')" data-t="b_results">Resultados</button>
+  </div>
+  <button class="amber" onclick="show('plan')" data-t="b_plan">Cambio de plan</button>
+  <div class="last" id="lastSent"></div>
+</section>
+
+<!-- PREVIEW -->
+<section id="preview">
+  <div class="bar"><h1 data-t="check">Revisar y enviar</h1><button class="link" onclick="back()" data-t="back">Volver</button></div>
+  <div class="preview" id="previewText"></div>
+  <div class="trans" id="previewEn"></div>
+  <button class="green" onclick="sendWhatsApp()" data-t="s_wa">Grupo de WhatsApp</button>
+  <button onclick="sendEmail('parent')" data-t="s_mail">Email a padres (CCO)</button>
+  <button onclick="sendSms('parent')" data-t="s_sms">SMS a padres</button>
+  <div class="note" data-t="nosend">Nada se envía hasta que pulses enviar en WhatsApp, Mail o Mensajes.</div>
+</section>
+
+<!-- CHANGE OF PLAN -->
+<section id="plan">
+  <div class="bar"><h1 data-t="b_plan">Cambio de plan</h1><button class="link" onclick="show('hub')" data-t="back">Volver</button></div>
+  <div class="sub" data-t="readyin">Listos para recoger en</div>
+  <div class="chips on">
+    <button class="chip" id="pe-30" onclick="setPlanEta(30)">30 min</button>
+    <button class="chip" id="pe-45" onclick="setPlanEta(45)">45 min</button>
+    <button class="chip" id="pe-60" onclick="setPlanEta(60)">60 min</button>
+  </div>
+  <button class="amber" onclick="pick('early', settings.planEta)" data-t="p_early">Entramos antes (tiempo)</button>
+  <button class="amber" id="p-abandoned" onclick="pick('abandoned', settings.planEta)" data-t="p_abandoned">Regata anulada hoy</button>
+  <button onclick="pick('delayed')" data-t="p_delayed">Vamos con retraso</button>
+  <button onclick="pick('cancelled')" data-t="p_cancelled">Entreno cancelado (aviso)</button>
+</section>
+
+<!-- PRIZE-GIVING -->
+<section id="prize">
+  <div class="bar"><h1 data-t="b_prize">Entrega premios</h1><button class="link" onclick="show('hub')" data-t="back">Volver</button></div>
+  <input type="time" id="prizeTime" value="17:30">
+  <div class="gap"></div>
+  <input type="text" id="prizePlace" placeholder="Lugar (p. ej. el club)">
+  <div class="gap"></div>
+  <button class="green" onclick="pickPrize()" data-t="z_send">Enviar hora de entrega</button>
+  <button onclick="pick('prizetbd')" data-t="z_tbd">Aún no hay hora</button>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="bar"><h1 data-t="b_results">Resultados</h1><button class="link" onclick="show('hub')" data-t="back">Volver</button></div>
+  <div class="sub" data-t="r_link">Enlace de resultados de la regata (se guarda para hoy)</div>
+  <input type="url" id="resultsUrl" placeholder="https://...">
+  <div class="gap"></div>
+  <button class="small" onclick="pasteInto('resultsUrl')" data-t="r_paste">Pegar del portapapeles</button>
+  <button class="green" onclick="pickResultsLink()" data-t="r_sendlink">Enviar enlace</button>
+  <h2 data-t="r_or">O pega la clasificación</h2>
+  <input type="text" id="raceNo" placeholder="Prueba n.º (opcional)" inputmode="numeric">
+  <div class="gap"></div>
+  <textarea id="resultsText" placeholder="1. ESP 1234&#10;2. ESP 2201&#10;3. GER 1102"></textarea>
+  <div style="height:12px"></div>
+  <button class="small" onclick="pasteInto('resultsText')" data-t="r_paste">Pegar del portapapeles</button>
+  <button class="green" onclick="pickResults()" data-t="r_preview">Revisar y enviar</button>
+</section>
+
+<!-- SETUP -->
+<section id="setup">
+  <div class="bar"><button class="lang" onclick="toggleLang()">English</button><button class="link" onclick="show('hub')" data-t="done">Listo</button></div>
+  <h1 data-t="setup">Ajustes</h1>
+  <div class="sub" data-t="onland">Hazlo una vez, en tierra.</div>
+  <button class="blue small" onclick="show('example')" data-t="ex_open">¿Cómo funciona? Ver un ejemplo</button>
+  <input type="text" id="squadName" placeholder="Grupo, p. ej. Optimist Desarrollo 1">
+  <div class="gap"></div>
+  <div class="sub" style="margin:0 0 6px" data-t="u_lang">Idioma de la app</div>
+  <div class="row">
+    <label class="chk"><input type="radio" name="ui" id="uiEs"> Español</label>
+    <label class="chk"><input type="radio" name="ui" id="uiEn"> English</label>
+  </div>
+  <div class="sub" style="margin:6px 0" data-t="m_lang">Idiomas de los mensajes</div>
+  <div class="row">
+    <label class="chk"><input type="checkbox" id="langEs"> Español</label>
+    <label class="chk"><input type="checkbox" id="langEn"> English</label>
+  </div>
+
+  <h2 data-t="today">Hoy</h2>
+  <input type="text" id="pickupPlace" placeholder="Lugar de recogida, p. ej. el club">
+  <div class="gap"></div>
+  <label class="chk"><input type="checkbox" id="lightTheme"> <span data-t="light">Tema claro (días nublados)</span></label>
+
+  <h2 data-t="contacts">Contactos</h2>
+  <button class="blue" onclick="importContacts()" data-t="import">Importar de tu agenda</button>
+  <input type="file" id="vcf" accept=".vcf,text/vcard,text/x-vcard" style="display:none">
+  <div class="note" id="importNote" style="margin:-4px 0 12px"></div>
+  <div class="note" style="margin-bottom:10px" data-t="tagnote">Toca la etiqueta para cambiarla: Padre/madre o Fuera.</div>
+  <div id="contactList"></div>
+  <button class="small" onclick="loadSample()" data-t="sample">Cargar contactos de ejemplo (pruebas)</button>
+  <button class="small" onclick="clearContacts()" data-t="clear">Quitar todos los contactos</button>
+
+  <h2>WhatsApp</h2>
+  <button class="green small" onclick="pinTest()" data-t="pin">Mensaje de prueba para fijar el grupo</button>
+  <div class="note" data-t="pinnote">Elige el grupo de padres una vez. WhatsApp lo mostrará primero en la lista.</div>
+
+  <h2 data-t="logh">Registro (últimos 7 días)</h2>
+  <div id="logList" class="note"></div>
+</section>
+
+<!-- EXAMPLE -->
+<section id="example">
+  <div class="bar"><button class="lang" onclick="toggleLang()">English</button><button class="link" onclick="back()" data-t="back">Volver</button></div>
+  <h1 data-t="ex_h">Cómo funciona: un día de ejemplo</h1>
+  <div class="sub" data-t="ex_sub">Cada paso es un botón de la app. El recuadro verde es lo que leen los padres en el grupo.</div>
+  <div class="chips on">
+    <button class="chip all" id="ex-training" onclick="renderExample('training')" data-t="training">Entreno</button>
+    <button class="chip all" id="ex-regatta" onclick="renderExample('regatta')" data-t="regatta">Regata</button>
+  </div>
+  <div id="exList"></div>
+  <button class="green" onclick="tryExample()" data-t="ex_try">Probar con datos de ejemplo</button>
+  <div class="note" data-t="ex_note">Rellena el grupo, el lugar y contactos de prueba solo donde aún están vacíos. Nada se envía hasta que pulses enviar en WhatsApp.</div>
+</section>
+
+<script>
+var P = 'chu1_';
+var settings, contacts, log, current = '', current_kind = '', prevScreen = 'hub';
+
+/* Message wording follows how the squad's coach already writes in the parents' group: short and informal. */
+var TEXT = {
+  es: {
+    water: '¡Al agua!',
+    lastrace: 'Empezamos la última prueba.',
+    heading: 'Hemos acabado, vamos a puerto.',
+    ready: 'Vamos a puerto. Estarán listos sobre las {t}{p}.',
+    readynow: 'Ya están listos{p}.',
+    early: 'Entramos antes por las condiciones. Estarán listos sobre las {t}{p}.',
+    abandoned: 'Regata anulada por hoy. Ahora desmontan; estarán listos sobre las {t}{p}.',
+    delayed: 'Vamos con retraso, todos bien. Aviso enseguida con la nueva hora.',
+    cancelled: 'Se cancela el entreno de hoy por el aviso meteorológico. Gracias.',
+    prize: 'Entrega de premios a las {pt}{pp}.',
+    prizetbd: 'Aún no hay hora de entrega de premios, aviso enseguida.',
+    results: '¡Resultados!',
+    resultsRace: 'Resultados prueba {r}:',
+    pin: 'Mensaje de prueba de la app del entrenador. Ignoradlo, por favor.',
+    at: ' en ', subject: 'Novedades de vela',
+    fleet: { yellow: 'Grupo amarillo', blue: 'Grupo azul', red: 'Grupo rojo' }
+  },
+  en: {
+    water: 'On the water!',
+    lastrace: 'Starting the last race.',
+    heading: 'Finished, heading in.',
+    ready: 'Heading in. Ready to collect at about {t}{p}.',
+    readynow: 'Ready to collect now{p}.',
+    early: 'Coming in early because of the conditions. Ready to collect at about {t}{p}.',
+    abandoned: 'Racing abandoned for today. Derigging now; ready to collect at about {t}{p}.',
+    delayed: 'Running late, everyone is fine. New time follows shortly.',
+    cancelled: "Today's training is cancelled because of the weather warning. Thank you.",
+    prize: 'Prize-giving at {pt}{pp}.',
+    prizetbd: 'No prize-giving time yet; we will let you know.',
+    results: 'Results!',
+    resultsRace: 'Race {r} results:',
+    pin: 'Test message from the coach app. Please ignore.',
+    at: ' at ', subject: 'Sailing update',
+    fleet: { yellow: 'Yellow fleet', blue: 'Blue fleet', red: 'Red fleet' }
+  }
+};
+
+/* Coach-facing labels; Spanish is the default because the squad's coach and group write in Spanish. */
+var UI = {
+  en: {
+    setup: 'Setup', all: 'All', yellow: 'Yellow', blue: 'Blue', red: 'Red',
+    offline: 'No data signal: WhatsApp will wait. Use SMS if it is urgent.',
+    b_water: 'On the water', b_lastrace: 'Last race', readyin: 'Ready to collect in',
+    b_heading: 'Heading in', b_readynow: 'Ready now', b_prize: 'Prize-giving', b_results: 'Results',
+    b_plan: 'Change of plan',
+    check: 'Check and send', back: 'Back', s_wa: 'WhatsApp group', s_mail: 'Email parents (Bcc)', s_sms: 'SMS parents',
+    nosend: 'Nothing is sent until you tap send in WhatsApp, Mail or Messages.',
+    p_early: 'Coming in early (weather)', p_abandoned: 'Racing abandoned today', p_delayed: 'Running late',
+    p_cancelled: 'Training cancelled (warning)', z_send: 'Send prize-giving time', z_tbd: 'No time yet',
+    r_link: 'Regatta results link (kept for today)', r_paste: 'Paste from clipboard', r_sendlink: 'Send link',
+    r_or: 'Or paste the standings', r_preview: 'Preview and send',
+    done: 'Done', onland: 'Do this once, on land.', u_lang: 'App language', m_lang: 'Message languages',
+    today: 'Today', regday: 'Regatta day (colour fleets)', light: 'Light theme (overcast days)',
+    contacts: 'Contacts', import: 'Import from your address book',
+    tagnote: 'Tap a tag to change it: Parent or Off.',
+    sample: 'Load sample contacts (testing)', clear: 'Remove all contacts',
+    pin: 'Send a test message to pin the group', pinnote: "Pick the parents' group once. WhatsApp then shows it at the top of its share list.",
+    logh: 'Send log (last 7 days)', training: 'Training', regatta: 'Regatta', parents: 'parents',
+    lastsent: 'Last sent', nothing: 'Nothing sent today yet.',
+    roles: { parent: 'Parent', off: 'Off' },
+    example: 'Example', ex_open: 'How does it work? See an example', ex_h: 'How it works: an example day',
+    ex_sub: 'Each step is one button in the app. The green box is what parents read in the group.',
+    ex_try: 'Try it with sample data',
+    ex_note: 'Fills in the squad, the place and test contacts only where they are still empty. Nothing is sent until you tap send in WhatsApp.',
+    inEnglish: 'In English: ', ex_before: 'Before (on land)'
+  },
+  es: {
+    inEnglish: '', ex_before: 'Antes (en tierra)',
+    training: 'Entreno', regatta: 'Regata', parents: 'padres',
+    lastsent: 'Último envío', nothing: 'Hoy no se ha enviado nada.',
+    roles: { parent: 'Padre/madre', off: 'Fuera' }
+  }
+};
+var HTML_TEXT = {};
+
+function load(key, fallback) {
+  try { var v = localStorage.getItem(P + key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function save(key, val) {
+  try { localStorage.setItem(P + key, JSON.stringify(val)); } catch (e) {}
+}
+function $(id) { return document.getElementById(id); }
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function clock(addMin, at) {
+  var d = new Date();
+  if (at) d.setHours(+at.split(':')[0], +at.split(':')[1], 0, 0);
+  d = new Date(d.getTime() + (addMin || 0) * 60000);
+  /* round to the next 5 minutes, as coaches do ("sobre las 16:15") */
+  var m = Math.ceil(d.getMinutes() / 5) * 5;
+  if (m === 60) { d.setHours(d.getHours() + 1); m = 0; }
+  return pad(d.getHours()) + ':' + pad(m);
+}
+function langs() {
+  var l = [];
+  if (settings.es) l.push('es');
+  if (settings.en) l.push('en');
+  return l.length ? l : ['es'];
+}
+function t(key) {
+  var d = UI[settings.ui] || {};
+  if (d[key] !== undefined) return d[key];
+  return settings.ui === 'en' ? key : HTML_TEXT[key];
+}
+function applyUi() {
+  var els = document.querySelectorAll('[data-t]');
+  for (var i = 0; i < els.length; i++) {
+    var k = els[i].getAttribute('data-t');
+    if (HTML_TEXT[k] === undefined) HTML_TEXT[k] = els[i].textContent;
+    var v = settings.ui === 'en' ? UI.en[k] : HTML_TEXT[k];
+    if (v !== undefined) els[i].textContent = v;
+  }
+  var lb = document.querySelectorAll('.lang');
+  for (var j = 0; j < lb.length; j++) lb[j].textContent = settings.ui === 'en' ? 'Español' : 'English';
+  document.documentElement.lang = settings.ui;
+}
+/* Same pill as the sailing sign-up page: it names the other language and switches the screens, not the messages. */
+function toggleLang() {
+  settings.ui = settings.ui === 'en' ? 'es' : 'en';
+  save('settings', settings);
+  applyUi();
+  if (onScreen === 'preview') setPreview(current_kind, current_opts);
+  else show(onScreen);
+}
+
+var onScreen = 'hub';
+function show(id) {
+  if (id === 'example' && onScreen !== 'example') exBack = onScreen;
+  onScreen = id;
+  var s = document.getElementsByTagName('section');
+  for (var i = 0; i < s.length; i++) s[i].className = '';
+  $(id).className = 'on';
+  if (id === 'hub') renderHub();
+  if (id === 'setup') renderSetup();
+  if (id === 'plan') setPlanEta(settings.planEta);
+  if (id === 'prize' && !$('prizePlace').value) $('prizePlace').value = settings.place || '';
+  if (id === 'results') $('resultsUrl').value = todayUrl();
+  if (id === 'example') renderExample(exDay);
+  window.scrollTo(0, 0);
+}
+function back() { show(onScreen === 'example' ? exBack : prevScreen); }
+
+/* ---------- messages ---------- */
+function build(kind, opts) {
+  opts = opts || {};
+  var out = [], L = opts.langs || langs();
+  for (var i = 0; i < L.length; i++) {
+    var T = TEXT[L[i]], s = T[kind];
+    var place = settings.place ? T.at + (L[i] === 'en' ? settings.place.replace(/^(el|la|los|las) /i, 'the ') : settings.place) : '';
+    if (kind === 'results' && opts.race) s = T.resultsRace.replace('{r}', opts.race);
+    s = s.replace('{t}', clock(opts.min || 0, opts.at)).replace('{p}', place)
+         .replace('{pt}', opts.prizeTime || '').replace('{pp}', opts.prizePlace ? T.at + opts.prizePlace : '');
+    if (settings.regatta && settings.fleet && kind !== 'pin') {
+      s = T.fleet[settings.fleet] + ': ' + s;
+    }
+    out.push(s);
+  }
+  var text = out.join(kind === 'results' ? ' / ' : '\n\n');
+  if (kind === 'results') text += '\n' + opts.body;
+  return text;
+}
+function withSquad(text) { return settings.squad ? settings.squad + '\n' + text : text; }
+
+/* When the screens are in English but the messages go out in Spanish only, the English version is shown below, not sent. */
+function translation(kind, opts) {
+  if (settings.ui !== 'en' || settings.en) return '';
+  opts.langs = ['en'];
+  var s = build(kind, opts);
+  delete opts.langs;
+  return t('inEnglish') + s;
+}
+function showTrans(id, text) {
+  $(id).textContent = text;
+  $(id).className = text ? 'trans on' : 'trans';
+}
+var current_opts = {};
+function setPreview(kind, opts) {
+  current_opts = opts || {};
+  current = build(kind, current_opts);
+  current_kind = kind;
+  $('previewText').textContent = current;
+  showTrans('previewEn', translation(kind, current_opts));
+  show('preview');
+}
+function pick(kind, min) {
+  prevScreen = (kind === 'early' || kind === 'abandoned' || kind === 'delayed' || kind === 'cancelled') ? 'plan'
+             : (kind === 'prizetbd' ? 'prize' : 'hub');
+  setPreview(kind, { min: min });
+}
+function pickPrize() {
+  prevScreen = 'prize';
+  setPreview('prize', { prizeTime: $('prizeTime').value, prizePlace: $('prizePlace').value });
+}
+function setFleet(f) {
+  settings.fleet = f;
+  save('settings', settings);
+  renderHub();
+}
+function setDay(regatta) {
+  settings.regatta = regatta;
+  save('settings', settings);
+  renderHub();
+}
+function setPlanEta(n) {
+  settings.planEta = n || 45;
+  save('settings', settings);
+  var opts = [30, 45, 60];
+  for (var i = 0; i < opts.length; i++) $('pe-' + opts[i]).className = 'chip' + (opts[i] === settings.planEta ? ' sel all' : '');
+}
+
+function cleanResults(raw) {
+  var lines = raw.split(/\r?\n/), out = [];
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i].replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+    if (l) out.push(l);
+  }
+  return out.join('\n');
+}
+function pasteInto(id) {
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(function (x) { $(id).value = x; },
+      function () { alert(settings.ui === 'en' ? 'Paste was blocked. Long-press the box and choose Paste.' : 'No se pudo pegar. Mantén pulsado el campo y elige Pegar.'); });
+  } else {
+    alert(settings.ui === 'en' ? 'Long-press the box and choose Paste.' : 'Mantén pulsado el campo y elige Pegar.');
+  }
+}
+function dayKey() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function todayUrl() { return settings.resultsDay === dayKey() ? (settings.resultsUrl || '') : ''; }
+function pickResultsLink() {
+  var url = $('resultsUrl').value.replace(/^\s+|\s+$/g, '');
+  if (!/^https?:\/\//i.test(url)) { alert(settings.ui === 'en' ? 'Paste the results link first.' : 'Pega primero el enlace de resultados.'); return; }
+  settings.resultsUrl = url;
+  settings.resultsDay = dayKey();
+  save('settings', settings);
+  prevScreen = 'results';
+  setPreview('results', { body: url });
+}
+function pickResults() {
+  var body = cleanResults($('resultsText').value);
+  if (!body) { alert(settings.ui === 'en' ? 'Paste or type the results first.' : 'Pega o escribe primero los resultados.'); return; }
+  prevScreen = 'results';
+  setPreview('results', { race: $('raceNo').value, body: body });
+}
+
+/* ---------- channels ---------- */
+function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent); }
+function role(r) {
+  var out = [];
+  for (var i = 0; i < contacts.length; i++) if (contacts[i].role === r) out.push(contacts[i]);
+  return out;
+}
+function nums(list) {
+  var out = [];
+  for (var i = 0; i < list.length; i++) if (list[i].tel) out.push(list[i].tel.replace(/[^\d+]/g, ''));
+  return out;
+}
+function mails(list) {
+  var out = [];
+  for (var i = 0; i < list.length; i++) if (list[i].email) out.push(list[i].email);
+  return out;
+}
+function logSend(channel, kind) {
+  log.unshift({ t: new Date().getTime(), kind: kind || current_kind, ch: channel, online: navigator.onLine });
+  var cut = new Date().getTime() - 7 * 864e5, keep = [];
+  for (var i = 0; i < log.length; i++) if (log[i].t > cut) keep.push(log[i]);
+  log = keep;
+  save('log', log);
+}
+function shareWhatsApp(text) {
+  if (navigator.share) {
+    navigator.share({ text: text })['catch'](function () {});
+  } else {
+    window.location.href = 'https://wa.me/?text=' + encodeURIComponent(text);
+  }
+}
+/* The WhatsApp group already knows which squad it is, so the squad name is added only to SMS and email. */
+function sendWhatsApp() { logSend('WhatsApp'); shareWhatsApp(current); }
+function sendEmail(r) {
+  var to = mails(role(r));
+  if (!to.length) { alert(settings.ui === 'en' ? 'No parent email addresses yet. Add them in Setup.' : 'Aún no hay emails de padres. Añádelos en Ajustes.'); return; }
+  logSend('Email');
+  window.location.href = 'mailto:?bcc=' + encodeURIComponent(to.join(',')) +
+    '&subject=' + encodeURIComponent((settings.squad ? settings.squad + ': ' : '') + TEXT[langs()[0]].subject) +
+    '&body=' + encodeURIComponent(current);
+}
+function smsLink(list, text) {
+  var n = nums(list);
+  if (!n.length) { alert(settings.ui === 'en' ? 'No phone numbers yet. Add contacts in Setup.' : 'Aún no hay teléfonos. Añade contactos en Ajustes.'); return null; }
+  return isIOS() ? 'sms:/open?addresses=' + n.join(',') + '&body=' + encodeURIComponent(text)
+                 : 'sms:' + n.join(',') + '?body=' + encodeURIComponent(text);
+}
+function sendSms(r) {
+  var link = smsLink(role(r), withSquad(current));
+  if (link) { logSend('SMS'); window.location.href = link; }
+}
+
+/* ---------- contacts ---------- */
+var ROLES = ['parent', 'off'];
+function uid() { return 'c' + new Date().getTime().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
+function addContacts(list) {
+  var added = 0;
+  for (var i = 0; i < list.length; i++) {
+    var c = list[i];
+    if (!c.tel && !c.email) continue;
+    var dup = false;
+    for (var j = 0; j < contacts.length; j++) {
+      if (c.tel && contacts[j].tel === c.tel) dup = true;
+    }
+    if (dup) continue;
+    contacts.push({ id: uid(), name: c.name || c.tel, tel: c.tel || '', email: c.email || '', role: 'parent' });
+    added++;
+  }
+  save('contacts', contacts);
+  $('importNote').textContent = '+' + added;
+  renderSetup();
+}
+function importContacts() {
+  if (navigator.contacts && navigator.contacts.select) {
+    navigator.contacts.select(['name', 'tel', 'email'], { multiple: true }).then(function (res) {
+      var list = [];
+      for (var i = 0; i < res.length; i++) {
+        list.push({ name: (res[i].name || [])[0], tel: (res[i].tel || [])[0], email: (res[i].email || [])[0] });
+      }
+      addContacts(list);
+    }, function () {});
+  } else {
+    $('importNote').textContent = settings.ui === 'en'
+      ? 'On iPhone: in Contacts, share the parents as a contact card (.vcf), save it to Files, then pick it here.'
+      : 'En iPhone: en Contactos, comparte a los padres como tarjeta (.vcf), guárdala en Archivos y elígela aquí.';
+    $('vcf').click();
+  }
+}
+function parseVcf(text) {
+  var lines = text.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '').split(/\r?\n/);
+  var out = [], c = null;
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i], up = l.toUpperCase(), v = l.substring(l.indexOf(':') + 1);
+    if (up.indexOf('BEGIN:VCARD') === 0) c = {};
+    else if (up.indexOf('END:VCARD') === 0 && c) { out.push(c); c = null; }
+    else if (c && up.indexOf('FN') === 0 && (up.charAt(2) === ':' || up.charAt(2) === ';')) c.name = v;
+    else if (c && /^(ITEM\d+\.)?TEL[:;]/.test(up) && !c.tel) c.tel = v;
+    else if (c && /^(ITEM\d+\.)?EMAIL[:;]/.test(up) && !c.email) c.email = v;
+  }
+  return out;
+}
+function cycleRole(id) {
+  for (var i = 0; i < contacts.length; i++) {
+    if (contacts[i].id === id) {
+      var k = ROLES.indexOf(contacts[i].role);
+      contacts[i].role = ROLES[(k + 1) % ROLES.length];
+    }
+  }
+  save('contacts', contacts);
+  renderSetup();
+}
+function loadSample() {
+  addContacts([
+    { name: 'Parent 1 (sample)', tel: '+34600000001', email: 'parent1@example.com' },
+    { name: 'Parent 2 (sample)', tel: '+34600000002', email: 'parent2@example.com' },
+    { name: 'Parent 3 (sample)', tel: '+34600000003', email: '' }
+  ]);
+}
+function clearContacts() {
+  if (confirm(settings.ui === 'en' ? 'Remove all contacts from this app? Your address book is not touched.' : '¿Quitar todos los contactos de la app? Tu agenda no se toca.')) {
+    contacts = []; save('contacts', contacts); renderSetup();
+  }
+}
+function pinTest() {
+  current_kind = 'pin';
+  logSend('WhatsApp', 'pin');
+  shareWhatsApp(build('pin'));
+}
+
+/* ---------- example day ---------- */
+/* Fixed clock times so the example reads the same at any hour; the messages come from the real presets. */
+var EXAMPLES = {
+  training: { place: 'el club', regatta: false, fleet: '', steps: [
+    { es: 'Pones el lugar de recogida (el club) y eliges «Entreno».', en: 'Set the pickup place (el club) and choose "Training".' },
+    { at: '10:30', kind: 'water', es: 'Salen al agua: pulsa «Al agua».', en: 'They launch: tap "On the water".' },
+    { at: '12:20', kind: 'early', min: 30, alt: true,
+      es: 'Solo si sube el viento: «Cambio de plan», 30 min, «Entramos antes».', en: 'Only if the wind gets up: "Change of plan", 30 min, "Coming in early".' },
+    { at: '13:15', kind: 'ready', min: 45, es: 'Último ejercicio terminado: pulsa «45 min».', en: 'Last drill done: tap "45 min".' },
+    { at: '14:00', kind: 'readynow', es: 'Barcos recogidos, niños duchados: pulsa «Ya están listos».', en: 'Boats put away, kids showered: tap "Ready now".' }
+  ] },
+  regatta: { place: 'el RCNP', regatta: true, fleet: 'yellow', steps: [
+    { es: 'Pones el lugar (el RCNP), eliges «Regata» y el grupo «Amarillo». Cada mensaje empieza con el grupo.', en: 'Set the place (el RCNP), choose "Regatta" and the "Yellow" fleet. Every message starts with the fleet.' },
+    { at: '10:45', kind: 'water', es: 'Sale el grupo: pulsa «Al agua».', en: 'The fleet launches: tap "On the water".' },
+    { at: '14:30', kind: 'lastrace', es: 'Se da la salida de la última prueba: pulsa «Última prueba».', en: 'Last race starts: tap "Last race".' },
+    { at: '15:10', kind: 'ready', min: 45, es: 'Han cruzado la llegada: pulsa «45 min».', en: 'They have finished: tap "45 min".' },
+    { at: '16:20', kind: 'prize', pt: '17:30', pp: 'el RCNP', es: 'El club anuncia la entrega: «Entrega premios», 17:30.', en: 'The club announces prize-giving: "Prize-giving", 17:30.' },
+    { at: '17:00', kind: 'results', body: 'https://example.com/resultados', es: 'Sale la clasificación: copia el enlace, «Resultados», «Enviar enlace».', en: 'Results are out: copy the link, "Results", "Send link".' }
+  ] }
+};
+var exDay = 'training', exBack = 'hub';
+function exampleMsg(day, st, lang) {
+  var keep = { place: settings.place, regatta: settings.regatta, fleet: settings.fleet };
+  settings.place = day.place; settings.regatta = day.regatta; settings.fleet = day.fleet;
+  var s = build(st.kind, { at: st.at, min: st.min, prizeTime: st.pt, prizePlace: st.pp, body: st.body, langs: [lang] });
+  settings.place = keep.place; settings.regatta = keep.regatta; settings.fleet = keep.fleet;
+  return s;
+}
+function renderExample(which) {
+  exDay = which;
+  $('ex-training').className = 'chip all' + (which === 'training' ? ' sel' : '');
+  $('ex-regatta').className = 'chip all' + (which === 'regatta' ? ' sel' : '');
+  var day = EXAMPLES[which], h = '', en = settings.ui === 'en';
+  for (var i = 0; i < day.steps.length; i++) {
+    var st = day.steps[i];
+    h += '<div class="step ex' + (st.alt ? ' alt' : '') + '"><div class="time">' + (st.at || t('ex_before')) + '</div>' +
+         '<div class="do">' + esc(en ? st.en : st.es) + '</div>';
+    if (st.kind) {
+      h += '<div class="bubble">' + esc(exampleMsg(day, st, 'es')) + '</div>';
+      if (en) h += '<div class="note" style="margin-top:6px">' + esc(t('inEnglish') + exampleMsg(day, st, 'en')) + '</div>';
+    }
+    h += '</div>';
+  }
+  $('exList').innerHTML = h;
+}
+function tryExample() {
+  var day = EXAMPLES[exDay];
+  if (!settings.squad) settings.squad = 'Optimist';
+  if (!settings.place) settings.place = day.place;
+  settings.regatta = day.regatta;
+  if (day.regatta && !settings.fleet) settings.fleet = day.fleet;
+  save('settings', settings);
+  if (!contacts.length) loadSample();
+  show('hub');
+}
+
+/* ---------- render ---------- */
+function renderHub() {
+  $('squadTitle').textContent = settings.squad || (settings.ui === 'en' ? 'Set up your squad' : 'Configura tu grupo');
+  var p = role('parent').length;
+  $('hubSub').textContent = (settings.place || '-') + ', ' + p + ' ' + t('parents') + ', ' + langs().join(' + ').toUpperCase();
+  $('dy-training').className = 'chip all' + (settings.regatta ? '' : ' sel');
+  $('dy-regatta').className = 'chip all' + (settings.regatta ? ' sel' : '');
+  $('fleetRow').className = settings.regatta ? 'chips on' : 'chips';
+  /* Prize-giving, results and "racing abandoned" only make sense on regatta days. */
+  $('regattaRow').style.display = settings.regatta ? '' : 'none';
+  $('p-abandoned').style.display = settings.regatta ? '' : 'none';
+  var f = ['', 'yellow', 'blue', 'red'], ids = ['fl-all', 'fl-yellow', 'fl-blue', 'fl-red'], cls = ['all', 'yel', 'blu', 'rd'];
+  for (var i = 0; i < f.length; i++) $(ids[i]).className = 'chip ' + cls[i] + ((settings.fleet || '') === f[i] ? ' sel' : '');
+  $('offline').className = navigator.onLine ? 'banner' : 'banner on';
+  $('lastSent').textContent = log.length ? t('lastsent') + ' ' + clockOf(log[0].t) + ', ' + log[0].kind + ', ' + log[0].ch : t('nothing');
+}
+function clockOf(x) { var d = new Date(x); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function renderSetup() {
+  $('squadName').value = settings.squad || '';
+  $('pickupPlace').value = settings.place || '';
+  $('uiEs').checked = settings.ui !== 'en';
+  $('uiEn').checked = settings.ui === 'en';
+  $('langEs').checked = !!settings.es;
+  $('langEn').checked = !!settings.en;
+  $('lightTheme').checked = !!settings.light;
+  var h = '', roles = t('roles');
+  for (var i = 0; i < contacts.length; i++) {
+    var c = contacts[i];
+    h += '<div class="contact"><span>' + esc(c.name) + '<small>' + esc(c.tel) + (c.email ? ' · ' + esc(c.email) : '') + '</small></span>' +
+         '<button class="tag ' + c.role + '" onclick="cycleRole(\'' + c.id + '\')">' + roles[c.role] + '</button></div>';
+  }
+  $('contactList').innerHTML = h || '<div class="note" style="margin-bottom:12px">-</div>';
+  var lh = '';
+  for (var j = 0; j < log.length; j++) {
+    var d = new Date(log[j].t);
+    lh += d.getDate() + '/' + (d.getMonth() + 1) + ' ' + clockOf(log[j].t) + ' · ' + esc(log[j].kind) + ' · ' + esc(log[j].ch) +
+          (log[j].online ? '' : ' · offline') + '<br>';
+  }
+  $('logList').innerHTML = lh || '-';
+}
+function bindSetting(id, key, isText) {
+  var el = $(id);
+  el.addEventListener(isText ? 'input' : 'change', function () {
+    settings[key] = isText ? el.value : el.checked;
+    save('settings', settings);
+    if (key === 'light') document.body.className = settings.light ? 'light' : '';
+  });
+}
+
+/* ---------- start ---------- */
+var DEFAULTS = { squad: '', place: '', ui: 'es', es: true, en: false, regatta: false, fleet: '', light: false,
+                 planEta: 45, resultsUrl: '', resultsDay: '' };
+settings = load('settings', {});
+for (var k in DEFAULTS) if (settings[k] === undefined) settings[k] = DEFAULTS[k];
+contacts = load('contacts', []);
+/* Club and emergency tags were removed in v4 (emergencies are handled individually); those contacts get no messages. */
+for (var ci = 0; ci < contacts.length; ci++) if (ROLES.indexOf(contacts[ci].role) < 0) contacts[ci].role = 'off';
+log = load('log', []);
+if (settings.light) document.body.className = 'light';
+bindSetting('squadName', 'squad', true);
+bindSetting('pickupPlace', 'place', true);
+bindSetting('langEs', 'es');
+bindSetting('langEn', 'en');
+bindSetting('lightTheme', 'light');
+$('uiEs').addEventListener('change', function () { settings.ui = 'es'; save('settings', settings); applyUi(); renderSetup(); });
+$('uiEn').addEventListener('change', function () { settings.ui = 'en'; save('settings', settings); applyUi(); renderSetup(); });
+$('vcf').addEventListener('change', function () {
+  var f = this.files && this.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () { addContacts(parseVcf(String(r.result))); };
+  r.readAsText(f);
+  this.value = '';
+});
+window.addEventListener('online', renderHub);
+window.addEventListener('offline', renderHub);
+applyUi();
+show(contacts.length ? 'hub' : 'setup');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
